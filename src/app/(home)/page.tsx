@@ -1,8 +1,8 @@
 import { getOverviewProtocols } from "@/services/data"
+import { OverallTvlChart } from "@/components/chart/overall-tvl-chart"
 import { ProtocolOverviewTableHeader } from "@/components/table/protocol-overview-table-header"
-import { ProtocolOverview } from "@/types"
 
-export const revalidate = false
+export const revalidate = 60 * 60 * 12 // 12 hours
 
 export default async function Home() {
   const { protocols, allTvls } = await getOverviewProtocols()
@@ -19,12 +19,11 @@ export default async function Home() {
           overview of the privacy landscape.
         </p>
       </div>
-      <div className="text-sm font-semibold">
-        <ProtocolOverviewTableHeader
-          protocols={protocols}
-          className="bg-card rounded-md border py-2"
-        />
-      </div>
+      <OverallTvlChart tvls={allTvls} />
+      <ProtocolOverviewTableHeader
+        protocols={protocols}
+        className="bg-card rounded-md border py-2 text-sm"
+      />
     </>
   )
 }

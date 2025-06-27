@@ -67,6 +67,7 @@ const columnConfig: (props: {
         <div className="flex w-fit items-center gap-2">
           <img src={logo} alt={name} className="size-5 shrink-0 rounded-full" />
           <Link
+            prefetch={false}
             href={`/protocol/${name}`}
             className="font-semibold hover:underline"
           >

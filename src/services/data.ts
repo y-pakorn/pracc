@@ -2,7 +2,8 @@ import { cache } from "react"
 import _ from "lodash"
 
 import { env } from "@/env.mjs"
-import { ProtocolOverview, RawProtocol } from "@/types"
+import { dayjs } from "@/lib/dayjs"
+import { OverallTvl, ProtocolOverview, RawProtocol } from "@/types"
 
 export const getRawProtocols = cache(async (): Promise<RawProtocol[]> => {
   const response = await fetch(env.DATA_API_URL)
@@ -46,37 +47,26 @@ const getTvl = cache(async (s: string) => {
 export const getOverviewProtocols = cache(
   async (): Promise<{
     protocols: ProtocolOverview[]
-    allTvls: {
-      date: number
-      totalTvl: number
-      tvls: {
-        name: string
-        tvl: number
-      }[]
-    }[]
+    allTvls: Record<string, OverallTvl[]>
   }> => {
     const rawProtocols = await getRawProtocols()
 
-    const allTvls: Record<
-      number,
-      {
-        name: string
-        tvl: number
-      }[]
-    > = {}
+    const allTvls: Record<number, Record<string, number>> = {}
 
     const protocols = await Promise.all(
       rawProtocols.map(async (rawProtocol) => {
         const tvl = await getTvl(rawProtocol.defillama_slug)
         if (tvl) {
           tvl.forEach((d) => {
-            if (!allTvls[d.date]) {
-              allTvls[d.date] = []
+            const date = dayjs
+              .utc(d.date * 1000)
+              .startOf("day")
+              .unix()
+
+            if (!allTvls[date]) {
+              allTvls[date] = {}
             }
-            allTvls[d.date].push({
-              name: rawProtocol.name,
-              tvl: d.tvl,
-            })
+            allTvls[date][rawProtocol.name] = d.tvl
           })
         }
         return {
@@ -92,16 +82,33 @@ export const getOverviewProtocols = cache(
       })
     )
 
+    const iter = _.chain(allTvls)
+      .entries()
+      .map(([date, tvls]) => ({
+        date: Number(date),
+        totalTvl: _.chain(tvls).values().sum().value(),
+        tvls,
+      }))
+      .sortBy((d) => -d.date)
+
+    const month = iter.slice(0, 30).reverse().value()
+    const year = iter
+      .slice(0, 365)
+      .filter((_, i) => i % 7 === 0)
+      .reverse()
+      .value()
+    const all = iter
+      .filter((_, i) => i % 30 === 0)
+      .reverse()
+      .value()
+
     return {
       protocols,
-      allTvls: _.chain(allTvls)
-        .entries()
-        .map(([date, tvls]) => ({
-          date: Number(date),
-          totalTvl: _.sumBy(tvls, "tvl"),
-          tvls,
-        }))
-        .value(),
+      allTvls: {
+        month,
+        year,
+        all,
+      },
     }
   }
 )

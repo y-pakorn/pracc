@@ -26,3 +26,9 @@ export type RawProtocol = {
   base_maturity: number | string
   punk_lv: number | string
 }
+
+export type OverallTvl = {
+  date: number
+  totalTvl: number
+  tvls: Record<string, number>
+}

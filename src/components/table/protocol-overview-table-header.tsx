@@ -93,7 +93,7 @@ export const ProtocolOverviewTableHeader = memo(
       <div className={cn(className)} {...props}>
         <div className="flex items-center gap-2 px-3">
           <Table className="size-4" />
-          <span>Protocol Table</span>
+          <span className="font-semibold">Protocol Table</span>
           <div className="flex-1" />
           <Button
             disabled={paginationState.pageIndex === 0}
