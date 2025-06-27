@@ -7,10 +7,12 @@ export const siteConfig = {
     "Privacy Robustness Accelerationism, a curated list of privacy-focused projects.",
   keywords: [],
   url: {
+    twitter: "https://x.com/pracc_xyz",
+    github: "https://github.com/y-pakorn/pracc",
     base: env.NEXT_PUBLIC_APP_URL,
     author: "PRACC",
   },
-  twitter: "",
+  twitter: "@pracc_xyz",
   favicon: "/favicon.ico",
   ogImage: `${env.NEXT_PUBLIC_APP_URL}/og.jpg`,
 }

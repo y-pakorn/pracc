@@ -5,7 +5,9 @@ import { useCallback, useMemo } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
+  ArrowUpRight,
   Flag,
+  Github,
   Globe,
   LayoutDashboard,
   Settings,
@@ -14,6 +16,7 @@ import {
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
+import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 
 import { Button } from "./ui/button"
@@ -59,7 +62,13 @@ export function AppSidebar({
             {
               icon: Twitter,
               label: "Twitter",
-              href: "https://x.com/pracc_xyz",
+              href: siteConfig.url.twitter,
+              isExternal: true,
+            },
+            {
+              icon: Github,
+              label: "GitHub",
+              href: siteConfig.url.github,
               isExternal: true,
             },
           ],
@@ -102,6 +111,7 @@ export function AppSidebar({
                   variant={
                     pathname === item.href ? "sidebarActive" : "sidebarInactive"
                   }
+                  className="group"
                   onClick={() => {
                     if (item.href) {
                       if (item.isExternal) {
@@ -117,6 +127,10 @@ export function AppSidebar({
                 >
                   <item.icon />
                   {item.label}
+                  <div className="flex-1" />
+                  {item.isExternal && (
+                    <ArrowUpRight className="text-muted-foreground size-4 transition-transform duration-700 group-hover:rotate-360" />
+                  )}
                 </Button>
               )
             })}
