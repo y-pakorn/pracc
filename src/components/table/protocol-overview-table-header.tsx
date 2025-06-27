@@ -78,22 +78,25 @@ export const ProtocolOverviewTableHeader = memo(
       pageIndex: 0,
       pageSize: limit,
     })
-    const maxPage = useMemo(() => {
+    const maxPageIndex = useMemo(() => {
       return Math.floor(filteredProtocols.length / limit)
-    }, [protocols])
+    }, [filteredProtocols])
 
     useEffect(() => {
       setPaginationState({
         pageIndex: 0,
         pageSize: limit,
       })
-    }, [category, subcategory])
+    }, [category, subcategory, search])
 
     return (
       <div className={cn(className)} {...props}>
         <div className="flex items-center gap-2 px-3">
           <Table className="size-4" />
-          <span className="font-semibold">Protocol Table</span>
+          <span className="font-semibold">
+            {filteredProtocols.length} Privacy Protocols
+          </span>
+
           <div className="flex-1" />
           <Button
             disabled={paginationState.pageIndex === 0}
@@ -118,7 +121,7 @@ export const ProtocolOverviewTableHeader = memo(
             Page {paginationState.pageIndex + 1}
           </Button>
           <Button
-            disabled={paginationState.pageIndex === maxPage}
+            disabled={paginationState.pageIndex === maxPageIndex}
             variant="outline"
             size="xs"
             onClick={() =>
@@ -134,15 +137,6 @@ export const ProtocolOverviewTableHeader = memo(
         </div>
         <Separator className="my-2" />
         <div className="flex items-center gap-2 px-3">
-          <Button
-            aria-readonly
-            className="pointer-events-none"
-            variant="outline"
-            size="xs"
-          >
-            Total {filteredProtocols.length} protocols
-          </Button>
-
           <MultiSelectFilterCombobox
             options={allCategory}
             value={category}
@@ -165,11 +159,23 @@ export const ProtocolOverviewTableHeader = memo(
               auto
             </div>
             <Input
-              className="h-7 w-xs shrink pl-8 text-xs!"
+              className="h-7 w-3xs shrink pl-8 text-xs!"
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search for a protocol"
             />
           </div>
+          <Button
+            variant="default"
+            size="xs"
+            disabled={!search && !category.length && !subcategory.length}
+            onClick={() => {
+              setSearch("")
+              setCategory([])
+              setSubcategory([])
+            }}
+          >
+            Reset
+          </Button>
         </div>
         <Separator className="my-2" />
         <ProtocolOverviewTable

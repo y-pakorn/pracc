@@ -9,7 +9,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <h1 className="text-2xl font-medium">Privacy Protocol Overview</h1>
         <p className="text-secondary-foreground text-sm">
           This is a curated list of privacy-focused protocols, including mixers,
@@ -18,7 +18,7 @@ export default async function Home() {
           decentralization, and real-world usage to provide an objective
           overview of the privacy landscape.
         </p>
-      </div>
+      </div> */}
       <OverallTvlChart tvls={allTvls} />
       <ProtocolOverviewTableHeader
         protocols={protocols}

@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react"
 import _ from "lodash"
+import { Check } from "lucide-react"
 import {
   Bar,
   BarChart,
@@ -11,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
+import { match } from "ts-pattern"
 
 import { getColor } from "@/lib/color"
 import { dayjs } from "@/lib/dayjs"
@@ -34,50 +36,56 @@ export function OverallTvlChart({
   tvls,
   className,
   ...props
-}: { tvls: Record<string, OverallTvl[]> } & React.ComponentProps<"div">) {
-  const [selectedTf, setSelectedTf] = useState<string>("all")
-  const { tfs, config, protocols, usedData, tvl } = useMemo(() => {
-    const protocols = _.chain(tvls[selectedTf])
-      .flatMap((t) => _.keys(t.tvls))
-      .uniq()
-      .value()
-    return {
-      usedData: tvls[selectedTf],
-      tfs: _.keys(tvls),
-      config: _.chain(protocols)
-        .map((p) => [
-          `tvls.${p}`,
-          {
-            label: p,
-            color: getColor(p).hex(),
-          },
-        ])
-        .fromPairs()
-        .value() satisfies ChartConfig,
-      protocols,
-      tvl: _.last(tvls[selectedTf])!,
-    }
-  }, [tvls, selectedTf])
+}: {
+  tvls: Record<"month" | "year" | "all", OverallTvl[]>
+} & React.ComponentProps<"div">) {
+  const [selectedTf, setSelectedTf] = useState<"month" | "year" | "all">("all")
+
+  const { tfs, config, protocols, usedData, lastTvl, firstTvl } =
+    useMemo(() => {
+      const protocols = _.chain(tvls[selectedTf])
+        .flatMap((t) => _.keys(t.tvls))
+        .uniq()
+        .value()
+      return {
+        usedData: tvls[selectedTf],
+        tfs: _.keys(tvls),
+        config: _.chain(protocols)
+          .map((p) => [
+            `tvls.${p}`,
+            {
+              label: p,
+              color: getColor(p).hex(),
+            },
+          ])
+          .fromPairs()
+          .value() satisfies ChartConfig,
+        protocols,
+        lastTvl: _.last(tvls[selectedTf])!,
+        firstTvl: _.first(tvls[selectedTf])!,
+      }
+    }, [tvls, selectedTf])
 
   return (
     <div
       className={cn(
-        "bg-card w-full space-y-2 rounded-md border p-4",
+        "bg-card w-full space-y-2 rounded-md border p-2",
         className
       )}
       {...props}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 p-2 pb-0">
         <div>
           <h2 className="text-secondary-foreground text-sm font-medium">
             Total Value Shielded
           </h2>
           <h1 className="text-2xl font-semibold">
             <span className="text-secondary-foreground">$</span>
-            {formatter.number(tvl.totalTvl)}
+            {formatter.number(lastTvl.totalTvl)}
           </h1>
-          <p className="text-muted-foreground text-xs">
-            {dayjs.utc(tvl.date * 1000).format("DD/MM/YYYY")}
+          <p className="text-muted-foreground mt-0.5 text-xs">
+            {dayjs.utc(firstTvl.date * 1000).format("DD/MM/YYYY")} -{" "}
+            {dayjs.utc(lastTvl.date * 1000).format("DD/MM/YYYY")}
           </p>
         </div>
         <div className="flex-1" />
@@ -86,18 +94,22 @@ export function OverallTvlChart({
             key={tf}
             variant={selectedTf === tf ? "default" : "outline"}
             size="xs"
-            onClick={() => setSelectedTf(tf)}
+            onClick={() => setSelectedTf(tf as "month" | "year" | "all")}
           >
-            {_.startCase(tf)}
+            {_.startCase(tf)}{" "}
+            <Check className={cn(selectedTf !== tf && "hidden")} />
           </Button>
         ))}
       </div>
-      <ChartContainer config={config} className="h-[200px] w-full">
+      <ChartContainer
+        config={config}
+        className="bg-background h-[230px] w-full rounded-md p-3 shadow-xs"
+      >
         <BarChart
           accessibilityLayer
           data={usedData}
           margin={{
-            top: 0,
+            top: 4,
             right: 0,
             bottom: 0,
             left: 0,
@@ -108,7 +120,15 @@ export function OverallTvlChart({
             tickLine={false}
             tickMargin={10}
             axisLine={false}
-            tickFormatter={(unix) => dayjs.utc(unix * 1000).format("D/M/YY")}
+            tickFormatter={(unix) =>
+              dayjs.utc(unix * 1000).format(
+                match(selectedTf)
+                  .with("month", () => "DD/MM/YY")
+                  .with("year", () => "DD/MM/YY")
+                  .with("all", () => "MM/YY")
+                  .exhaustive()
+              )
+            }
           />
           <ChartTooltip
             content={
@@ -133,7 +153,7 @@ export function OverallTvlChart({
                         <div className="text-secondary-foreground">Total</div>
                         <div className="ml-auto">
                           <span className="text-secondary-foreground">$</span>
-                          {formatter.number(tvl)}
+                          {formatter.numberReadable(tvl)}
                         </div>
                       </div>
                     </div>

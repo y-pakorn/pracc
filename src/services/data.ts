@@ -47,7 +47,7 @@ const getTvl = cache(async (s: string) => {
 export const getOverviewProtocols = cache(
   async (): Promise<{
     protocols: ProtocolOverview[]
-    allTvls: Record<string, OverallTvl[]>
+    allTvls: Record<"month" | "year" | "all", OverallTvl[]>
   }> => {
     const rawProtocols = await getRawProtocols()
 
@@ -91,9 +91,9 @@ export const getOverviewProtocols = cache(
       }))
       .sortBy((d) => -d.date)
 
-    const month = iter.slice(0, 30).reverse().value()
+    const month = iter.slice(0, 60).reverse().value()
     const year = iter
-      .slice(0, 365)
+      .slice(0, 520)
       .filter((_, i) => i % 7 === 0)
       .reverse()
       .value()
