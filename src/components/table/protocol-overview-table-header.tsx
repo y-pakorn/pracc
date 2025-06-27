@@ -128,6 +128,7 @@ export const ProtocolOverviewTableHeader = memo(
         </div>
         <Separator className="my-2" />
         <ProtocolOverviewTable
+          className="-my-2"
           protocols={data}
           rankOffset={(currentPage - 1) * limit}
         />
