@@ -1,19 +1,27 @@
 "use client"
 
 import { memo, useEffect, useMemo, useState } from "react"
+import { PaginationState } from "@tanstack/react-table"
 import dayjs from "dayjs"
 import _ from "lodash"
-import { ChartBarStacked, ChevronLeft, ChevronRight, Table } from "lucide-react"
+import {
+  ChartBarStacked,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Table,
+} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { ProtocolOverview } from "@/types"
 
 import { MultiSelectFilterCombobox } from "../filter-combobox"
 import { Button } from "../ui/button"
+import { Input } from "../ui/input"
 import { Separator } from "../ui/separator"
 import { ProtocolOverviewTable } from "./protocol-overview-table"
 
-const limit = 10
+const limit = 15
 
 export const ProtocolOverviewTableHeader = memo(
   ({
@@ -21,13 +29,11 @@ export const ProtocolOverviewTableHeader = memo(
     className,
     ...props
   }: { protocols: ProtocolOverview[] } & React.ComponentProps<"div">) => {
-    const [currentPage, setCurrentPage] = useState(1)
-    const maxPage = useMemo(() => {
-      return Math.ceil(protocols.length / limit)
-    }, [protocols])
-
     const [category, setCategory] = useState<string[]>([])
     const [subcategory, setSubcategory] = useState<string[]>([])
+
+    const [search, _setSearch] = useState("")
+    const setSearch = useMemo(() => _.debounce(_setSearch, 300), [])
 
     const { allCategory, allSubcategory, totalTvl } = useMemo(() => {
       return {
@@ -45,11 +51,7 @@ export const ProtocolOverviewTableHeader = memo(
       }
     }, [protocols])
 
-    useEffect(() => {
-      setCurrentPage(1)
-    }, [category, subcategory])
-
-    const data = useMemo(() => {
+    const filteredProtocols = useMemo(() => {
       return _.chain(protocols)
         .filter((protocol) =>
           category.length ? category.includes(protocol.category) : true
@@ -57,14 +59,35 @@ export const ProtocolOverviewTableHeader = memo(
         .filter((protocol) =>
           subcategory.length ? subcategory.includes(protocol.subcategory) : true
         )
-        .slice((currentPage - 1) * limit, currentPage * limit)
         .map((protocol) => ({
           ...protocol,
-          liveWhenUnix: dayjs(protocol.liveWhen).unix() * 1000,
+          liveWhenUnix: protocol.liveWhen
+            ? dayjs(protocol.liveWhen).unix() * 1000
+            : undefined,
           tvlPct: protocol.tvl ? protocol.tvl / totalTvl : undefined,
         }))
+        .filter((protocol) =>
+          search
+            ? protocol.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
+            : true
+        )
         .value()
-    }, [protocols, category, subcategory, currentPage])
+    }, [protocols, category, subcategory, totalTvl, search])
+
+    const [paginationState, setPaginationState] = useState<PaginationState>({
+      pageIndex: 0,
+      pageSize: limit,
+    })
+    const maxPage = useMemo(() => {
+      return Math.floor(filteredProtocols.length / limit)
+    }, [protocols])
+
+    useEffect(() => {
+      setPaginationState({
+        pageIndex: 0,
+        pageSize: limit,
+      })
+    }, [category, subcategory])
 
     return (
       <div className={cn(className)} {...props}>
@@ -73,10 +96,15 @@ export const ProtocolOverviewTableHeader = memo(
           <span>Protocol Table</span>
           <div className="flex-1" />
           <Button
-            disabled={currentPage === 1}
+            disabled={paginationState.pageIndex === 0}
             variant="outline"
             size="xs"
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={() =>
+              setPaginationState((prev) => ({
+                ...prev,
+                pageIndex: prev.pageIndex - 1,
+              }))
+            }
           >
             <ChevronLeft />
             Back
@@ -87,13 +115,18 @@ export const ProtocolOverviewTableHeader = memo(
             variant="outline"
             size="xs"
           >
-            Page {currentPage}
+            Page {paginationState.pageIndex + 1}
           </Button>
           <Button
-            disabled={currentPage === maxPage}
+            disabled={paginationState.pageIndex === maxPage}
             variant="outline"
             size="xs"
-            onClick={() => setCurrentPage(currentPage + 1)}
+            onClick={() =>
+              setPaginationState((prev) => ({
+                ...prev,
+                pageIndex: prev.pageIndex + 1,
+              }))
+            }
           >
             Next
             <ChevronRight />
@@ -107,7 +140,7 @@ export const ProtocolOverviewTableHeader = memo(
             variant="outline"
             size="xs"
           >
-            Total {protocols.length} protocols
+            Total {filteredProtocols.length} protocols
           </Button>
 
           <MultiSelectFilterCombobox
@@ -125,12 +158,37 @@ export const ProtocolOverviewTableHeader = memo(
             label="Subcategory"
             icon={ChartBarStacked}
           />
+          <div className="flex-1" />
+          <div className="relative flex">
+            <Search className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2" />
+            <div className="text-muted-foreground absolute top-1/2 right-2 -translate-y-1/2 font-bold italic">
+              auto
+            </div>
+            <Input
+              className="h-7 w-xs shrink pl-8 text-xs!"
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search for a protocol"
+            />
+          </div>
         </div>
         <Separator className="my-2" />
         <ProtocolOverviewTable
           className="-my-2"
-          protocols={data}
-          rankOffset={(currentPage - 1) * limit}
+          protocols={filteredProtocols}
+          onCategoryClick={(cat) => {
+            const isSelected = category.includes(cat)
+            if (!isSelected) {
+              setCategory([...category, cat])
+            }
+          }}
+          onSubcategoryClick={(subcat) => {
+            const isSelected = subcategory.includes(subcat)
+            if (!isSelected) {
+              setSubcategory([...subcategory, subcat])
+            }
+          }}
+          paginationState={paginationState}
+          setPaginationState={setPaginationState}
         />
       </div>
     )

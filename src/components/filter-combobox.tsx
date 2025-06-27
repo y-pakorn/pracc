@@ -1,5 +1,5 @@
 import { memo, useState } from "react"
-import { CheckIcon, LucideProps, Plus } from "lucide-react"
+import { CheckIcon, LucideProps, Plus, X } from "lucide-react"
 
 import { Button } from "./ui/button"
 import { Checkbox } from "./ui/checkbox"

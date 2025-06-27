@@ -26,9 +26,9 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         sidebarInactive:
-          "text-secondary-foreground bg-transparent hover:bg-secondary w-full justify-start",
+          "text-secondary-foreground bg-transparent hover:bg-secondary w-full justify-start font-medium",
         sidebarActive:
-          "[&_svg:not([class*='size-'])]:text-accent-foreground text-foreground shadow-xs bg-secondary w-full justify-start",
+          "[&_svg:not([class*='size-'])]:text-accent-foreground text-foreground shadow-xs bg-secondary w-full justify-start border",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

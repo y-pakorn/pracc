@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useState } from "react"
+import { memo, useMemo, useState } from "react"
 import Link from "next/link"
 import {
   ColumnDef,
@@ -8,6 +8,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  PaginationState,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table"
@@ -39,13 +40,20 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 
 type ProtocolOverviewWithMetadata = ProtocolOverview & {
-  liveWhenUnix: number
+  liveWhenUnix?: number
   tvlPct?: number
 }
 
-const columns: ColumnDef<ProtocolOverviewWithMetadata>[] = [
+const columnConfig: (props: {
+  onCategoryClick?: (category: string) => void
+  onSubcategoryClick?: (subcategory: string) => void
+}) => ColumnDef<ProtocolOverviewWithMetadata>[] = ({
+  onCategoryClick,
+  onSubcategoryClick,
+}) => [
   {
     accessorKey: "rank",
     header: "#",
@@ -57,7 +65,7 @@ const columns: ColumnDef<ProtocolOverviewWithMetadata>[] = [
       const [logo, name, website] = getValue<[string, string, string]>()
       return (
         <div className="flex w-fit items-center gap-2">
-          <img src={logo} alt={name} className="size-4 shrink-0 rounded-full" />
+          <img src={logo} alt={name} className="size-5 shrink-0 rounded-full" />
           <Link
             href={`/protocol/${name}`}
             className="font-semibold hover:underline"
@@ -88,13 +96,22 @@ const columns: ColumnDef<ProtocolOverviewWithMetadata>[] = [
     cell: ({ getValue }) => {
       const category = getValue<string>()
       return (
-        <Badge variant="outline">
-          {category}
-          <div
-            className="size-1.5 shrink-0 rounded-full"
-            style={{ backgroundColor: getColor(category).hex() }}
-          />
-        </Badge>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge
+              variant="outline"
+              onClick={() => onCategoryClick?.(category)}
+              className="cursor-pointer"
+            >
+              <div
+                className="size-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: getColor(category).hex() }}
+              />
+              {category}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>Filter for {category}</TooltipContent>
+        </Tooltip>
       )
     },
   },
@@ -104,13 +121,22 @@ const columns: ColumnDef<ProtocolOverviewWithMetadata>[] = [
     cell: ({ getValue }) => {
       const subcategory = getValue<string>()
       return (
-        <Badge variant="outline">
-          {subcategory}
-          <div
-            className="size-1.5 shrink-0 rounded-full"
-            style={{ backgroundColor: getColor(subcategory).hex() }}
-          />
-        </Badge>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge
+              variant="outline"
+              onClick={() => onSubcategoryClick?.(subcategory)}
+              className="cursor-pointer"
+            >
+              <div
+                className="size-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: getColor(subcategory).hex() }}
+              />
+              {subcategory}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>Filter for {subcategory}</TooltipContent>
+        </Tooltip>
       )
     },
   },
@@ -145,7 +171,7 @@ const columns: ColumnDef<ProtocolOverviewWithMetadata>[] = [
     cell: ({ getValue, row }) => {
       const tvlPct = getValue<number>()
       const tvl = row.original.tvl
-      if (!tvl) return "-"
+      if (!tvl) return <span className="text-muted-foreground">-</span>
       return (
         <div>
           <div>
@@ -186,6 +212,7 @@ const columns: ColumnDef<ProtocolOverviewWithMetadata>[] = [
     },
     cell: ({ getValue }) => {
       const liveWhen = getValue<string>()
+      if (!liveWhen) return <span className="text-muted-foreground">-</span>
       return <span>{dayjs(liveWhen).fromNow(true)}</span>
     },
   },
@@ -195,18 +222,27 @@ export const ProtocolOverviewTable = memo(
   ({
     protocols,
     className,
-    rankOffset = 0,
+    onCategoryClick,
+    onSubcategoryClick,
+    paginationState,
+    setPaginationState,
     ...props
   }: {
     protocols: ProtocolOverviewWithMetadata[]
-    rankOffset?: number
+    onCategoryClick?: (category: string) => void
+    onSubcategoryClick?: (subcategory: string) => void
+    paginationState: PaginationState
+    setPaginationState: (paginationState: PaginationState) => void
   } & React.ComponentProps<"div">) => {
-    const [sorting, setSorting] = useState<SortingState>([
-      {
-        desc: false,
-        id: "age",
-      },
-    ])
+    const columns = useMemo(
+      () =>
+        columnConfig({
+          onCategoryClick,
+          onSubcategoryClick,
+        }),
+      [onCategoryClick, onSubcategoryClick]
+    )
+    const [sorting, setSorting] = useState<SortingState>([])
 
     const table = useReactTable({
       columns,
@@ -217,6 +253,7 @@ export const ProtocolOverviewTable = memo(
       onSortingChange: setSorting,
       state: {
         sorting,
+        pagination: paginationState,
       },
     })
 
@@ -252,7 +289,14 @@ export const ProtocolOverviewTable = memo(
                     <TableCell key={cell.id} className="h-12">
                       {match(cell.column.id)
                         .with("rank", () => {
-                          return <span>{rankOffset + i + 1}</span>
+                          return (
+                            <span>
+                              {paginationState.pageIndex *
+                                paginationState.pageSize +
+                                i +
+                                1}
+                            </span>
+                          )
                         })
                         .otherwise(() => {
                           return flexRender(
