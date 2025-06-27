@@ -2,7 +2,7 @@ import { getOverviewProtocols } from "@/services/data"
 import { OverallTvlChart } from "@/components/chart/overall-tvl-chart"
 import { ProtocolOverviewTableHeader } from "@/components/table/protocol-overview-table-header"
 
-export const revalidate = 60 * 60 * 12 // 12 hours
+export const revalidate = 43200 // 12 hours
 
 export default async function Home() {
   const { protocols, allTvls } = await getOverviewProtocols()
