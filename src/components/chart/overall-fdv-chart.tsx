@@ -137,9 +137,8 @@ export function OverallFdvChart({
             tickMargin={4}
             axisLine={false}
             fontSize={10}
-            tickFormatter={(unix) =>
-              dayjs.utc(unix * 1000).format("DD/MM/YYYY")
-            }
+            tickCount={7}
+            tickFormatter={(unix) => dayjs.utc(unix * 1000).format("DD/MM")}
           />
           <YAxis
             hide
@@ -155,7 +154,7 @@ export function OverallFdvChart({
                   if (!item?.payload) return null
                   const date = dayjs
                     .utc(item.payload.date * 1000)
-                    .format("DD/MM/YYYY")
+                    .format("DD/MM HH:mm")
                   const fdv = item.payload.totalFdv
                   return (
                     <div>

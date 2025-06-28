@@ -66,7 +66,7 @@ const getCoins = cache(async (coinIds: string[]) => {
       fdv: (c.current_price * c.total_supply) as number,
       change24h: c.price_change_percentage_24h as number,
       fdvs: _.chain(c.sparkline_in_7d.price)
-        .filter((_, i) => i % 24 === 0)
+        .filter((_, i) => i % 12 === 0)
         .map((p) => p * c.total_supply)
         .value() as number[],
     }))
@@ -98,7 +98,7 @@ export const getOverviewProtocols = cache(
         if (coin) {
           const fdvs = coin.fdvs
           for (let i = 0; i < fdvs.length; i++) {
-            const date = currentDay.subtract(i, "day").unix()
+            const date = currentDay.subtract(i * 12, "hour").unix()
             if (!allFdvs[date]) {
               allFdvs[date] = {}
             }
