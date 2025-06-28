@@ -33,7 +33,7 @@ export const ProtocolOverviewTableHeader = memo(
     const [subcategory, setSubcategory] = useState<string[]>([])
 
     const [search, _setSearch] = useState("")
-    const setSearch = useMemo(() => _.debounce(_setSearch, 300), [])
+    const setSearch = useMemo(() => _.debounce(_setSearch, 50), [])
 
     const { allCategory, allSubcategory, totalTvl } = useMemo(() => {
       return {
