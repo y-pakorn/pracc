@@ -3,7 +3,13 @@ import _ from "lodash"
 
 import { env } from "@/env.mjs"
 import { dayjs } from "@/lib/dayjs"
-import { OverallTvl, ProtocolOverview, RawProtocol } from "@/types"
+import {
+  CoinGeckoCoin,
+  OverallFdv,
+  OverallTvl,
+  ProtocolOverview,
+  RawProtocol,
+} from "@/types"
 
 export const getRawProtocols = cache(async (): Promise<RawProtocol[]> => {
   const response = await fetch(env.DATA_API_URL)
@@ -44,18 +50,61 @@ const getTvl = cache(async (s: string) => {
   return null
 })
 
+const getCoins = cache(async (coinIds: string[]) => {
+  const response = await fetch(
+    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${encodeURIComponent(
+      coinIds.join(",")
+    )}&price_change_percentage=24h&sparkline=true`
+  ).then((res) => res.json())
+  const data = _.chain(response)
+    .map((c) => ({
+      id: c.id as string,
+      symbol: c.symbol as string,
+      image: c.image as string,
+      totalSupply: c.total_supply as number,
+      currentPrice: c.current_price as number,
+      fdv: (c.current_price * c.total_supply) as number,
+      change24h: c.price_change_percentage_24h as number,
+      fdvs: _.chain(c.sparkline_in_7d.price)
+        .filter((_, i) => i % 24 === 0)
+        .map((p) => p * c.total_supply)
+        .value() as number[],
+    }))
+    .groupBy("id")
+    .mapValues((c) => c[0])
+    .value()
+  return data
+})
+
 export const getOverviewProtocols = cache(
   async (): Promise<{
     protocols: ProtocolOverview[]
     allTvls: Record<"month" | "year" | "all", OverallTvl[]>
+    allFdvs: OverallFdv[]
   }> => {
     const rawProtocols = await getRawProtocols()
+    const coins = await getCoins(
+      rawProtocols.map((r) => r.coingecko_id).filter((c) => c !== "")
+    )
 
     const allTvls: Record<number, Record<string, number>> = {}
+    const allFdvs: Record<number, Record<string, number>> = {}
 
+    const currentDay = dayjs.utc().startOf("day")
     const protocols = await Promise.all(
       rawProtocols.map(async (rawProtocol) => {
         const tvl = await getTvl(rawProtocol.defillama_slug)
+        const coin = coins[rawProtocol.coingecko_id]
+        if (coin) {
+          const fdvs = coin.fdvs
+          for (let i = 0; i < fdvs.length; i++) {
+            const date = currentDay.subtract(i, "day").unix()
+            if (!allFdvs[date]) {
+              allFdvs[date] = {}
+            }
+            allFdvs[date][rawProtocol.name] = fdvs[i]
+          }
+        }
         if (tvl) {
           tvl.forEach((d) => {
             const date = dayjs
@@ -77,6 +126,7 @@ export const getOverviewProtocols = cache(
           website: rawProtocol.url,
           logo: rawProtocol.logo_url,
           tvl: _.last(tvl)?.tvl ?? null,
+          coin: coin ? _.omit(coin, "fdvs") : null,
           score: null,
         }
       })
@@ -109,6 +159,16 @@ export const getOverviewProtocols = cache(
         year,
         all,
       },
+      allFdvs: _.chain(allFdvs)
+        .entries()
+        .map(([date, fdvs]) => ({
+          date: Number(date),
+          totalFdv: _.chain(fdvs).values().sum().value(),
+          fdvs,
+        }))
+        .sortBy((d) => -d.date)
+        .reverse()
+        .value(),
     }
   }
 )

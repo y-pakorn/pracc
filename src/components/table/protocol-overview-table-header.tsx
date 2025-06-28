@@ -119,6 +119,7 @@ export const ProtocolOverviewTableHeader = memo(
             size="xs"
           >
             Page {paginationState.pageIndex + 1}
+            <span className="text-muted-foreground">/ {maxPageIndex + 1}</span>
           </Button>
           <Button
             disabled={paginationState.pageIndex === maxPageIndex}

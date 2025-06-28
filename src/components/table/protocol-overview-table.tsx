@@ -27,7 +27,7 @@ import { getColor } from "@/lib/color"
 import { dayjs } from "@/lib/dayjs"
 import { formatter } from "@/lib/formatter"
 import { cn } from "@/lib/utils"
-import { ProtocolOverview } from "@/types"
+import { CoinGeckoCoin, ProtocolOverview } from "@/types"
 
 import { InfoTooltip } from "../info-tooltp"
 import { Badge } from "../ui/badge"
@@ -181,6 +181,58 @@ const columnConfig: (props: {
           </div>
           <div className="text-muted-foreground text-xs">
             {tvlPct < 0.001 ? "<0.001%" : formatter.pct(tvlPct)}
+          </div>
+        </div>
+      )
+    },
+  },
+  {
+    id: "fdv",
+    sortUndefined: "last",
+    sortDescFirst: true,
+    accessorFn: (row) => row.coin?.fdv,
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted()
+      return (
+        <div className="flex items-center">
+          <InfoTooltip>Fully Diluted Valuation</InfoTooltip>
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={() => {
+              column.toggleSorting()
+            }}
+            className="p-0!"
+          >
+            <span>FDV</span>
+            {match(isSorted)
+              .with(false, () => <ArrowUpDown />)
+              .with("asc", () => <ArrowUp />)
+              .with("desc", () => <ArrowDown />)
+              .exhaustive()}
+          </Button>
+        </div>
+      )
+    },
+    cell: ({ getValue, row }) => {
+      const fdv = getValue<number | undefined>()
+      const change24h = row.original.coin?.change24h
+      if (_.isUndefined(fdv) || _.isUndefined(change24h))
+        return <span className="text-muted-foreground">-</span>
+      return (
+        <div>
+          <div>
+            <span className="text-secondary-foreground">$</span>
+            {formatter.numberReadable(fdv)}
+          </div>
+          <div
+            className={cn(
+              "text-muted-foreground text-xs",
+              change24h !== 0 &&
+                (change24h > 0 ? "text-green-400" : "text-red-400")
+            )}
+          >
+            {formatter.pct(change24h / 100)}
           </div>
         </div>
       )

@@ -6,6 +6,7 @@ export type ProtocolOverview = {
   liveWhen: string
   website: string
   tvl: number | null
+  coin: CoinGeckoCoin | null
   score: number | null
 }
 
@@ -17,6 +18,7 @@ export type RawProtocol = {
   url: string
   logo_url: string
   defillama_slug: string
+  coingecko_id: string
   privacy_stack: string
   tech_stack: string
   priv_who: number | string
@@ -31,4 +33,20 @@ export type OverallTvl = {
   date: number
   totalTvl: number
   tvls: Record<string, number>
+}
+
+export type OverallFdv = {
+  date: number
+  totalFdv: number
+  fdvs: Record<string, number>
+}
+
+export type CoinGeckoCoin = {
+  id: string
+  symbol: string
+  image: string
+  totalSupply: number
+  currentPrice: number
+  fdv: number
+  change24h: number
 }

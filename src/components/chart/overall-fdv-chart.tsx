@@ -18,7 +18,7 @@ import { getColor } from "@/lib/color"
 import { dayjs } from "@/lib/dayjs"
 import { formatter } from "@/lib/formatter"
 import { cn } from "@/lib/utils"
-import { OverallTvl } from "@/types"
+import { OverallFdv, OverallTvl } from "@/types"
 
 import { Button } from "../ui/button"
 import {
@@ -32,39 +32,40 @@ import {
 import { Separator } from "../ui/separator"
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group"
 
-export function OverallTvlChart({
-  tvls,
+export function OverallFdvChart({
+  fdvs,
   className,
   ...props
 }: {
-  tvls: Record<"month" | "year" | "all", OverallTvl[]>
+  fdvs: OverallFdv[]
 } & React.ComponentProps<"div">) {
-  const [selectedTf, setSelectedTf] = useState<"month" | "year" | "all">("all")
-
-  const { tfs, config, protocols, usedData, lastTvl, firstTvl } =
-    useMemo(() => {
-      const protocols = _.chain(tvls[selectedTf])
-        .flatMap((t) => _.keys(t.tvls))
-        .uniq()
-        .value()
-      return {
-        usedData: tvls[selectedTf],
-        tfs: _.keys(tvls),
-        config: _.chain(protocols)
-          .map((p) => [
-            `tvls.${p}`,
-            {
-              label: p,
-              color: getColor(p).hex(),
-            },
-          ])
-          .fromPairs()
-          .value() satisfies ChartConfig,
-        protocols,
-        lastTvl: _.last(tvls[selectedTf])!,
-        firstTvl: _.first(tvls[selectedTf])!,
-      }
-    }, [tvls, selectedTf])
+  const { config, protocols, change, firstFdv, lastFdv } = useMemo(() => {
+    const protocols = _.chain(fdvs)
+      .map((f) => _.keys(f.fdvs))
+      .flatten()
+      .uniq()
+      .value()
+    return {
+      config: _.chain(protocols)
+        .map((p) => [
+          `fdvs.${p}`,
+          {
+            label: p,
+            color: getColor(p).hex(),
+          },
+        ])
+        .fromPairs()
+        .value() satisfies ChartConfig,
+      protocols,
+      change: (() => {
+        const lastFdv = _.last(fdvs)!
+        const firstFdv = _.first(fdvs)!
+        return (lastFdv.totalFdv - firstFdv.totalFdv) / firstFdv.totalFdv
+      })(),
+      firstFdv: _.first(fdvs)!,
+      lastFdv: _.last(fdvs)!,
+    }
+  }, [fdvs])
 
   return (
     <div
@@ -77,37 +78,52 @@ export function OverallTvlChart({
       <div className="flex items-center gap-2 p-2 pb-0">
         <div>
           <h2 className="text-secondary-foreground text-sm font-medium">
-            Total Value Shielded
+            All Protocols Fully Diluted Market Cap
           </h2>
           <h1 className="text-2xl font-semibold">
             <span className="text-secondary-foreground">$</span>
-            {formatter.number(lastTvl.totalTvl)}
+            {formatter.number(lastFdv.totalFdv)}{" "}
+            <span
+              className={cn(
+                "text-muted-foreground text-base font-medium",
+                change !== 0 && (change > 0 ? "text-green-400" : "text-red-400")
+              )}
+            >
+              ({formatter.pct(change)})
+            </span>
           </h1>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            {dayjs.utc(firstTvl.date * 1000).format("DD/MM/YYYY")} -{" "}
-            {dayjs.utc(lastTvl.date * 1000).format("DD/MM/YYYY")}
-          </p>
+          <div className="text-muted-foreground -mt-0.5 inline-flex items-center text-xs">
+            <p className="text-secondary-foreground">
+              Data by{" "}
+              <span className="font-semibold hover:underline">
+                <a
+                  href="https://www.coingecko.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Coingecko
+                </a>
+              </span>
+            </p>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/b/b0/CoinGecko_logo.png"
+              className="mx-1 size-4 shrink-0 rounded-full"
+            />
+            <p>
+              {dayjs.utc(firstFdv.date * 1000).format("DD/MM/YYYY")} -{" "}
+              {dayjs.utc(lastFdv.date * 1000).format("DD/MM/YYYY")}
+            </p>
+          </div>
         </div>
         <div className="flex-1" />
-        {tfs.map((tf) => (
-          <Button
-            key={tf}
-            variant={selectedTf === tf ? "default" : "outline"}
-            size="xs"
-            onClick={() => setSelectedTf(tf as "month" | "year" | "all")}
-          >
-            {_.startCase(tf)}{" "}
-            <Check className={cn(selectedTf !== tf && "hidden")} />
-          </Button>
-        ))}
       </div>
       <ChartContainer
         config={config}
-        className="bg-background h-[210px] w-full rounded-md p-2 pb-0 shadow-xs"
+        className="bg-background h-[120px] w-full rounded-md p-2 pb-0 shadow-xs"
       >
         <BarChart
           accessibilityLayer
-          data={usedData}
+          data={fdvs}
           margin={{
             top: 2,
             right: 0,
@@ -122,14 +138,12 @@ export function OverallTvlChart({
             axisLine={false}
             fontSize={10}
             tickFormatter={(unix) =>
-              dayjs.utc(unix * 1000).format(
-                match(selectedTf)
-                  .with("month", () => "DD/MM/YY")
-                  .with("year", () => "DD/MM/YY")
-                  .with("all", () => "MM/YY")
-                  .exhaustive()
-              )
+              dayjs.utc(unix * 1000).format("DD/MM/YYYY")
             }
+          />
+          <YAxis
+            hide
+            domain={["dataMin", (dataMax: number) => dataMax * 1.2]}
           />
           <ChartTooltip
             content={
@@ -142,7 +156,7 @@ export function OverallTvlChart({
                   const date = dayjs
                     .utc(item.payload.date * 1000)
                     .format("DD/MM/YYYY")
-                  const tvl = item.payload.totalTvl
+                  const fdv = item.payload.totalFdv
                   return (
                     <div>
                       <Separator className="my-2" />
@@ -154,7 +168,7 @@ export function OverallTvlChart({
                         <div className="text-secondary-foreground">Total</div>
                         <div className="ml-auto">
                           <span className="text-secondary-foreground">$</span>
-                          {formatter.numberReadable(tvl)}
+                          {formatter.numberReadable(fdv)}
                         </div>
                       </div>
                     </div>
@@ -167,7 +181,7 @@ export function OverallTvlChart({
             <Bar
               stackId="a"
               key={protocol}
-              dataKey={`tvls.${protocol}`}
+              dataKey={`fdvs.${protocol}`}
               fill={getColor(protocol).hex()}
             />
           ))}

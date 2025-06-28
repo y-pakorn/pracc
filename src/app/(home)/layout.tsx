@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <AppSidebar className="p-4" />
       </ScrollArea>
       <ScrollArea className="h-full w-full overflow-y-auto">
-        <div className="flex flex-col gap-6 px-6 py-4">{children}</div>
+        <div className="flex flex-col gap-4 px-6 py-4">{children}</div>
       </ScrollArea>
     </div>
   )
