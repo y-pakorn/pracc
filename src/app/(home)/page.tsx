@@ -53,7 +53,9 @@ export default async function Home() {
               },
             ].map(({ label, value }, i) => (
               <div key={i} className="bg-background rounded-md p-2 text-end">
-                <p className="text-secondary-foreground text-xs">{label}</p>
+                <p className="text-secondary-foreground text-xs font-medium">
+                  {label}
+                </p>
                 <p className="text-2xl font-semibold">{value}</p>
               </div>
             ))}
