@@ -180,6 +180,7 @@ export const getOverviewProtocols = cache(
           fdvs,
         }))
         .sortBy((d) => -d.date)
+        .slice(0, 14)
         .reverse()
         .value(),
     }

@@ -68,9 +68,6 @@ export function AppSidebar({
                         router.push(item.href)
                       }
                     }
-                    if (item.onClick) {
-                      item.onClick()
-                    }
                   }}
                 >
                   <item.icon />
