@@ -5,6 +5,7 @@ import { env } from "@/env.mjs"
 import { dayjs } from "@/lib/dayjs"
 import {
   CoinGeckoCoin,
+  MiniProtocol,
   OverallFdv,
   OverallTvl,
   ProtocolOverview,
@@ -14,6 +15,18 @@ import {
 export const getRawProtocols = cache(async (): Promise<RawProtocol[]> => {
   const response = await fetch(env.DATA_API_URL)
   return response.json()
+})
+
+export const getMiniProtocols = cache(async (): Promise<MiniProtocol[]> => {
+  const protocols = await getRawProtocols()
+  return _.chain(protocols)
+    .map((p) => ({
+      name: p.name,
+      category: p.category,
+      subcategory: p.sub_category,
+      logo: p.logo_url,
+    }))
+    .value()
 })
 
 const getTvl = cache(async (s: string) => {

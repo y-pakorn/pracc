@@ -29,6 +29,13 @@ export type RawProtocol = {
   punk_lv: number | string
 }
 
+export type MiniProtocol = {
+  name: string
+  category: string
+  subcategory: string
+  logo: string
+}
+
 export type OverallTvl = {
   date: number
   totalTvl: number

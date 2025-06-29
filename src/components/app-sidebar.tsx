@@ -18,6 +18,7 @@ import { useTheme } from "next-themes"
 
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
+import { nav } from "@/constants/nav"
 
 import { Button } from "./ui/button"
 
@@ -33,59 +34,6 @@ export function AppSidebar({
     setTheme(resolvedTheme === "dark" ? "light" : "dark")
   }, [setTheme, resolvedTheme])
 
-  const sections = useMemo(
-    () =>
-      [
-        {
-          title: "Statistics",
-          items: [
-            {
-              icon: LayoutDashboard,
-              label: "Overview",
-              href: "/",
-            },
-            {
-              icon: Globe,
-              label: "Chains",
-              href: "/chains",
-            },
-          ],
-        },
-        {
-          title: "About",
-          items: [
-            {
-              icon: Flag,
-              label: "Our Mission",
-              href: "/mission",
-            },
-            {
-              icon: Twitter,
-              label: "Twitter",
-              href: siteConfig.url.twitter,
-              isExternal: true,
-            },
-            {
-              icon: Github,
-              label: "GitHub",
-              href: siteConfig.url.github,
-              isExternal: true,
-            },
-          ],
-        },
-      ] as {
-        title: string
-        items: {
-          icon: React.ElementType
-          label: string
-          href?: string
-          onClick?: () => void
-          isExternal?: boolean
-        }[]
-      }[],
-    [toggleTheme]
-  )
-
   return (
     <div {...props} className={cn("flex flex-col gap-6", className)}>
       <div>
@@ -97,7 +45,7 @@ export function AppSidebar({
         </h2>
       </div>
 
-      {sections.map((section, i) => (
+      {nav.map((section, i) => (
         <div key={i} className="space-y-1">
           <div className="text-muted-foreground text-xs font-medium">
             {section.title}

@@ -5,8 +5,6 @@ import { OverallFdvChart } from "@/components/chart/overall-fdv-chart"
 import { OverallTvlChart } from "@/components/chart/overall-tvl-chart"
 import { ProtocolOverviewTableHeader } from "@/components/table/protocol-overview-table-header"
 
-export const revalidate = 43200 // 12 hours
-
 export default async function Home() {
   const { protocols, allTvls, allFdvs } = await getOverviewProtocols()
 
