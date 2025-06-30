@@ -281,8 +281,11 @@ const columnConfig: (props: {
       return (
         <div className="flex items-center">
           <InfoTooltip>
-            Individual Privacy Component, the number of privacy components in
-            the protocol that we are tracking.
+            Individual Privacy Component
+            <div className="dark:text-secondary-foreground">
+              The number of privacy components in the protocol that we are
+              tracking.
+            </div>
           </InfoTooltip>
           <Button
             variant="ghost"
@@ -411,7 +414,7 @@ export const ProtocolOverviewTable = memo(
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="h-12! overflow-y-hidden"
+                      className="h-14! overflow-y-hidden"
                     >
                       {match(cell.column.id)
                         .with("rank", () => {
@@ -438,7 +441,7 @@ export const ProtocolOverviewTable = memo(
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-20 text-center"
+                  className="text-muted-foreground h-20 text-center"
                 >
                   No results.
                 </TableCell>
