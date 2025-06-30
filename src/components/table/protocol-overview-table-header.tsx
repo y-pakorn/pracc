@@ -9,6 +9,8 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Search,
   Table,
 } from "lucide-react"
@@ -64,18 +66,19 @@ export const ProtocolOverviewTableHeader = memo(
             ? _.intersection(subCategories, protocol.subCategories).length > 0
             : true
         )
-        .map((protocol) => ({
-          ...protocol,
-          liveWhenUnix: protocol.liveWhen
-            ? dayjs(protocol.liveWhen).unix() * 1000
-            : undefined,
-          tvlPct: protocol.tvl ? protocol.tvl / totalTvl : undefined,
-        }))
         .filter((protocol) =>
           search
             ? protocol.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
             : true
         )
+        .map((protocol, i) => ({
+          ...protocol,
+          rank: i + 1,
+          liveWhenUnix: protocol.liveWhen
+            ? dayjs(protocol.liveWhen).unix() * 1000
+            : undefined,
+          tvlPct: protocol.tvl ? protocol.tvl / totalTvl : undefined,
+        }))
         .value()
     }, [protocols, categories, subCategories, totalTvl, search])
 
@@ -126,6 +129,19 @@ export const ProtocolOverviewTableHeader = memo(
             </SelectContent>
           </Select>
           <Button
+            variant="outline"
+            size="xs"
+            onClick={() =>
+              setPaginationState((prev) => ({
+                ...prev,
+                pageIndex: 0,
+              }))
+            }
+            disabled={paginationState.pageIndex === 0}
+          >
+            <ChevronsLeft />
+          </Button>
+          <Button
             disabled={paginationState.pageIndex === 0}
             variant="outline"
             size="xs"
@@ -161,6 +177,19 @@ export const ProtocolOverviewTableHeader = memo(
           >
             Next
             <ChevronRight />
+          </Button>
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={() =>
+              setPaginationState((prev) => ({
+                ...prev,
+                pageIndex: maxPageIndex,
+              }))
+            }
+            disabled={paginationState.pageIndex === maxPageIndex}
+          >
+            <ChevronsRight />
           </Button>
         </div>
         <Separator className="my-2" />

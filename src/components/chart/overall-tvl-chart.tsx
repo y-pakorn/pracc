@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react"
 import _ from "lodash"
 import { Check } from "lucide-react"
-import { Bar, ComposedChart, XAxis } from "recharts"
+import { Bar, BarChart, XAxis } from "recharts"
 import { match } from "ts-pattern"
 
 import { getColor } from "@/lib/color"
@@ -94,7 +94,7 @@ export function OverallTvlChart({
         config={config}
         className="bg-background h-[210px] w-full rounded-md p-2 pb-0 shadow-xs"
       >
-        <ComposedChart
+        <BarChart
           accessibilityLayer
           data={usedData}
           margin={{
@@ -160,7 +160,7 @@ export function OverallTvlChart({
               fill={getColor(protocol).hex()}
             />
           ))}
-        </ComposedChart>
+        </BarChart>
       </ChartContainer>
     </div>
   )

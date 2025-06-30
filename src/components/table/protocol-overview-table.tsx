@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useMemo, useState } from "react"
+import { memo, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import {
   ColumnDef,
@@ -14,6 +14,7 @@ import {
 } from "@tanstack/react-table"
 import _ from "lodash"
 import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from "lucide-react"
+import { AnimatePresence, motion } from "motion/react"
 import { match } from "ts-pattern"
 
 import { dayjs } from "@/lib/dayjs"
@@ -53,11 +54,10 @@ const columnConfig: (props: {
     header: "#",
   },
   {
-    accessorFn: (row) => [row.id, row.logo, row.name, row.website] as const,
+    accessorFn: (row) => [row.id, row.logo, row.name] as const,
     header: "Name",
     cell: ({ getValue }) => {
-      const [id, logo, name, website] =
-        getValue<[string, string, string, string]>()
+      const [id, logo, name] = getValue<[string, string, string]>()
       return (
         <div className="flex w-fit items-center gap-2">
           <img src={logo} alt={name} className="size-5 shrink-0 rounded-full" />
@@ -67,20 +67,6 @@ const columnConfig: (props: {
             className="font-semibold hover:underline"
           >
             {name}
-          </Link>
-          <Link
-            href={website}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              buttonVariants({
-                variant: "ghost",
-                size: "xsIcon",
-              }),
-              "text-muted-foreground -ml-1"
-            )}
-          >
-            <ExternalLink />
           </Link>
         </div>
       )
@@ -355,7 +341,14 @@ export const ProtocolOverviewTable = memo(
     onSubcategoryClick?: (subcategory: string) => void
     paginationState: PaginationState
     setPaginationState: (paginationState: PaginationState) => void
-  } & React.ComponentProps<"div">) => {
+  } & Omit<
+    React.ComponentProps<"div">,
+    | "onDrag"
+    | "onDragEnd"
+    | "onDragStart"
+    | "onAnimationStart"
+    | "onAnimationEnd"
+  >) => {
     const columns = useMemo(
       () =>
         columnConfig({
@@ -367,6 +360,7 @@ export const ProtocolOverviewTable = memo(
     const [sorting, setSorting] = useState<SortingState>([])
 
     const table = useReactTable({
+      getRowId: (row) => row.id,
       columns,
       isMultiSortEvent: () => true,
       getCoreRowModel: getCoreRowModel(),
@@ -381,7 +375,10 @@ export const ProtocolOverviewTable = memo(
     })
 
     return (
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
         className={cn("w-full overflow-x-auto text-sm font-medium", className)}
         {...props}
       >
@@ -389,67 +386,136 @@ export const ProtocolOverviewTable = memo(
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map((header, headerIndex) => {
                   return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
+                    <motion.th
+                      key={header.id}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        transition: {
+                          duration: 0.3,
+                          delay: headerIndex * 0.05,
+                          ease: "easeOut",
+                        },
+                      }}
+                      className="text-muted-foreground h-10 px-4 text-left align-middle text-xs font-medium [&:has([role=checkbox])]:pr-0"
+                    >
+                      <motion.div
+                        whileHover={{
+                          scale: header.column.getCanSort() ? 1.02 : 1,
+                        }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </motion.div>
+                    </motion.th>
                   )
                 })}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row, i) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+            <AnimatePresence mode="popLayout">
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row, i) => (
+                  <motion.tr
+                    key={row.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.3,
+                        delay: i * 0.05,
+                        ease: "easeOut",
+                      },
+                    }}
+                    transition={{
+                      layout: {
+                        duration: 0.3,
+                        ease: "easeInOut",
+                      },
+                    }}
+                    className="hover:bg-muted/50 data-[state=selected]:bg-muted h-14! border-b p-0 transition-colors"
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell, cellIndex) => (
+                      <motion.td
+                        key={cell.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{
+                          opacity: 1,
+                          x: 0,
+                          transition: {
+                            duration: 0.3,
+                            delay: i * 0.05 + cellIndex * 0.02,
+                            ease: "easeOut",
+                          },
+                        }}
+                        className="h-14! overflow-y-hidden px-2 align-middle first:pl-4 last:pr-4 [&:has([role=checkbox])]:pr-0"
+                      >
+                        {match(cell.column.id)
+                          .with("rank", () => {
+                            return (
+                              <motion.span
+                                key={`rank-${paginationState.pageIndex * paginationState.pageSize + i + 1}`}
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{
+                                  scale: 1,
+                                  opacity: 1,
+                                  transition: {
+                                    duration: 0.2,
+                                    delay: i * 0.05 + 0.1,
+                                    ease: "backOut",
+                                  },
+                                }}
+                              >
+                                {paginationState.pageIndex *
+                                  paginationState.pageSize +
+                                  i +
+                                  1}
+                              </motion.span>
+                            )
+                          })
+                          .otherwise(() => {
+                            return flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )
+                          })}
+                      </motion.td>
+                    ))}
+                  </motion.tr>
+                ))
+              ) : (
+                <motion.tr
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors"
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className="h-14! overflow-y-hidden"
-                    >
-                      {match(cell.column.id)
-                        .with("rank", () => {
-                          return (
-                            <span>
-                              {paginationState.pageIndex *
-                                paginationState.pageSize +
-                                i +
-                                1}
-                            </span>
-                          )
-                        })
-                        .otherwise(() => {
-                          return flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )
-                        })}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="text-muted-foreground h-20 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
+                  <motion.td
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    colSpan={columns.length}
+                    className="text-muted-foreground h-20 p-4 text-center align-middle [&:has([role=checkbox])]:pr-0"
+                  >
+                    No results.
+                  </motion.td>
+                </motion.tr>
+              )}
+            </AnimatePresence>
           </TableBody>
         </Table>
-      </div>
+      </motion.div>
     )
   }
 )
