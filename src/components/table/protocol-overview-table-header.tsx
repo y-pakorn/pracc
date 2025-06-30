@@ -6,6 +6,7 @@ import dayjs from "dayjs"
 import _ from "lodash"
 import {
   ChartBarStacked,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Search,
@@ -18,6 +19,7 @@ import { ProtocolOverview } from "@/types"
 import { MultiSelectFilterCombobox } from "../filter-combobox"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select"
 import { Separator } from "../ui/separator"
 import { ProtocolOverviewTable } from "./protocol-overview-table"
 
@@ -101,6 +103,28 @@ export const ProtocolOverviewTableHeader = memo(
           </span>
 
           <div className="flex-1" />
+          <Select
+            value={paginationState.pageSize.toString()}
+            onValueChange={(value) =>
+              setPaginationState((prev) => ({
+                ...prev,
+                pageSize: Number(value),
+              }))
+            }
+          >
+            <SelectTrigger asChild>
+              <Button variant="outline" size="xs" className="h-7! text-xs!">
+                Limit {paginationState.pageSize} <ChevronDown />
+              </Button>
+            </SelectTrigger>
+            <SelectContent>
+              {paginationLimits.map((limit) => (
+                <SelectItem key={limit} value={limit.toString()}>
+                  {limit}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             disabled={paginationState.pageIndex === 0}
             variant="outline"
