@@ -1,36 +1,23 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import _ from "lodash"
-import { Check } from "lucide-react"
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  LineChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts"
-import { match } from "ts-pattern"
+import { Bar, BarChart, XAxis, YAxis } from "recharts"
 
 import { getColor } from "@/lib/color"
 import { dayjs } from "@/lib/dayjs"
 import { formatter } from "@/lib/formatter"
 import { cn } from "@/lib/utils"
-import { OverallFdv, OverallTvl } from "@/types"
+import { OverallFdv } from "@/types"
 
-import { Button } from "../ui/button"
+import { InfoTooltip } from "../info-tooltp"
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "../ui/chart"
 import { Separator } from "../ui/separator"
-import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group"
 
 export function OverallFdvChart({
   fdvs,
@@ -78,7 +65,12 @@ export function OverallFdvChart({
       <div className="flex items-center gap-2 p-2 pb-0">
         <div>
           <h2 className="text-secondary-foreground text-sm font-medium">
-            All Protocols Fully Diluted Market Cap
+            Total FDV
+            <InfoTooltip>
+              Total FDV is the sum of all protocol&apos;s
+              <br />
+              fully diluted valuations if they have a token.
+            </InfoTooltip>
           </h2>
           <h1 className="text-2xl font-semibold">
             <span className="text-secondary-foreground">$</span>

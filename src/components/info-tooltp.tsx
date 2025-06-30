@@ -27,7 +27,9 @@ export const InfoTooltip = memo(
             <Info />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{children}</TooltipContent>
+        <TooltipContent className="max-w-xs text-pretty">
+          {children}
+        </TooltipContent>
       </Tooltip>
     )
   }

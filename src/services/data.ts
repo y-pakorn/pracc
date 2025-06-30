@@ -21,9 +21,10 @@ export const getMiniProtocols = cache(async (): Promise<MiniProtocol[]> => {
   const protocols = await getRawProtocols()
   return _.chain(protocols)
     .map((p) => ({
+      id: p.id,
       name: p.name,
-      category: p.category,
-      subcategory: p.sub_category,
+      categories: p.categories.split(","),
+      subCategories: p.sub_categories.split(","),
       logo: p.logo_url,
     }))
     .value()
@@ -120,6 +121,8 @@ export const getOverviewProtocols = cache(
         }
         if (tvl) {
           tvl.forEach((d) => {
+            if (d.tvl === 0) return
+
             const date = dayjs
               .utc(d.date * 1000)
               .startOf("day")
@@ -132,15 +135,17 @@ export const getOverviewProtocols = cache(
           })
         }
         return {
+          id: rawProtocol.id,
           name: rawProtocol.name,
-          category: rawProtocol.category,
-          subcategory: rawProtocol.sub_category,
+          categories: rawProtocol.categories.split(","),
+          subCategories: rawProtocol.sub_categories.split(","),
           liveWhen: rawProtocol.live_at,
           website: rawProtocol.url,
           logo: rawProtocol.logo_url,
           tvl: _.last(tvl)?.tvl ?? null,
           coin: coin ? _.omit(coin, "fdvs") : null,
           score: null,
+          ipc: rawProtocol.ipc,
         }
       })
     )

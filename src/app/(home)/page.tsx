@@ -32,20 +32,18 @@ export default async function Home() {
           <div className="grid grid-cols-3 gap-2">
             {[
               {
-                label: "Protocols Supported",
+                label: "Protocols",
                 value: protocols.length,
               },
               {
-                label: "Total Categories",
-                value: _.chain(protocols)
-                  .map((p) => p.category)
-                  .uniq()
-                  .value().length,
+                label: "Categories",
+                value: _.chain(protocols).flatMap("categories").uniq().value()
+                  .length,
               },
               {
-                label: "Total Subcategories",
+                label: "Subcategories",
                 value: _.chain(protocols)
-                  .map((p) => p.subcategory)
+                  .flatMap("subCategories")
                   .uniq()
                   .value().length,
               },

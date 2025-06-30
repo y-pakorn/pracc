@@ -3,15 +3,7 @@
 import React, { useMemo, useState } from "react"
 import _ from "lodash"
 import { Check } from "lucide-react"
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  LineChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts"
+import { Bar, ComposedChart, XAxis } from "recharts"
 import { match } from "ts-pattern"
 
 import { getColor } from "@/lib/color"
@@ -24,13 +16,10 @@ import { Button } from "../ui/button"
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "../ui/chart"
 import { Separator } from "../ui/separator"
-import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group"
 
 export function OverallTvlChart({
   tvls,
@@ -105,7 +94,7 @@ export function OverallTvlChart({
         config={config}
         className="bg-background h-[210px] w-full rounded-md p-2 pb-0 shadow-xs"
       >
-        <BarChart
+        <ComposedChart
           accessibilityLayer
           data={usedData}
           margin={{
@@ -171,7 +160,7 @@ export function OverallTvlChart({
               fill={getColor(protocol).hex()}
             />
           ))}
-        </BarChart>
+        </ComposedChart>
       </ChartContainer>
     </div>
   )

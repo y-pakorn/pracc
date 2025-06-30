@@ -13,25 +13,19 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import _ from "lodash"
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  ExternalLink,
-  Globe,
-} from "lucide-react"
+import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from "lucide-react"
 import { match } from "ts-pattern"
-import uniqolor from "uniqolor"
 
-import { getColor } from "@/lib/color"
 import { dayjs } from "@/lib/dayjs"
 import { formatter } from "@/lib/formatter"
 import { cn } from "@/lib/utils"
-import { CoinGeckoCoin, ProtocolOverview } from "@/types"
+import { ProtocolOverview } from "@/types"
 
 import { InfoTooltip } from "../info-tooltp"
 import { Badge } from "../ui/badge"
 import { Button, buttonVariants } from "../ui/button"
+import { CategoryBadge } from "../ui/category-badge"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import {
   Table,
   TableBody,
@@ -59,16 +53,17 @@ const columnConfig: (props: {
     header: "#",
   },
   {
-    accessorFn: (row) => [row.logo, row.name, row.website] as const,
+    accessorFn: (row) => [row.id, row.logo, row.name, row.website] as const,
     header: "Name",
     cell: ({ getValue }) => {
-      const [logo, name, website] = getValue<[string, string, string]>()
+      const [id, logo, name, website] =
+        getValue<[string, string, string, string]>()
       return (
         <div className="flex w-fit items-center gap-2">
           <img src={logo} alt={name} className="size-5 shrink-0 rounded-full" />
           <Link
             prefetch={false}
-            href={`/protocol/${name}`}
+            href={`/protocol/${id}`}
             className="font-semibold hover:underline"
           >
             {name}
@@ -92,52 +87,88 @@ const columnConfig: (props: {
     },
   },
   {
-    accessorKey: "category",
+    accessorKey: "categories",
     header: "Category",
     cell: ({ getValue }) => {
-      const category = getValue<string>()
+      const categories = getValue<string[]>()
+      const firstCategory = _.first(categories)!
       return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Badge
-              variant="outline"
-              onClick={() => onCategoryClick?.(category)}
-              className="cursor-pointer"
-            >
-              <div
-                className="size-1.5 shrink-0 rounded-full"
-                style={{ backgroundColor: getColor(category).hex() }}
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CategoryBadge
+                category={firstCategory}
+                onClick={() => onCategoryClick?.(firstCategory)}
               />
-              {category}
-            </Badge>
-          </TooltipTrigger>
-          <TooltipContent>Filter for {category}</TooltipContent>
-        </Tooltip>
+            </TooltipTrigger>
+            <TooltipContent>Filter for {firstCategory}</TooltipContent>
+          </Tooltip>
+          {categories.length > 1 && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Badge variant="outline" className="cursor-pointer">
+                  +{categories.length - 1}
+                </Badge>
+              </PopoverTrigger>
+              <PopoverContent className="w-fit p-2">
+                {categories.slice(1).map((category) => (
+                  <Tooltip key={category}>
+                    <TooltipTrigger asChild>
+                      <CategoryBadge
+                        category={category}
+                        onClick={() => onCategoryClick?.(category)}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>Filter for {category}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
       )
     },
   },
   {
-    accessorKey: "subcategory",
+    accessorKey: "subCategories",
     header: "Subcategory",
     cell: ({ getValue }) => {
-      const subcategory = getValue<string>()
+      const subCategories = getValue<string[]>()
+      const firstSubcategory = _.first(subCategories)!
       return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Badge
-              variant="outline"
-              onClick={() => onSubcategoryClick?.(subcategory)}
-              className="cursor-pointer"
-            >
-              <div
-                className="size-1.5 shrink-0 rounded-full"
-                style={{ backgroundColor: getColor(subcategory).hex() }}
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CategoryBadge
+                category={firstSubcategory}
+                onClick={() => onSubcategoryClick?.(firstSubcategory)}
               />
-              {subcategory}
-            </Badge>
-          </TooltipTrigger>
-          <TooltipContent>Filter for {subcategory}</TooltipContent>
-        </Tooltip>
+            </TooltipTrigger>
+            <TooltipContent>Filter for {firstSubcategory}</TooltipContent>
+          </Tooltip>
+          {subCategories.length > 1 && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Badge variant="outline" className="cursor-pointer">
+                  +{subCategories.length - 1}
+                </Badge>
+              </PopoverTrigger>
+              <PopoverContent className="w-fit p-2">
+                {subCategories.slice(1).map((subcategory) => (
+                  <Tooltip key={subcategory}>
+                    <TooltipTrigger asChild>
+                      <CategoryBadge
+                        category={subcategory}
+                        onClick={() => onSubcategoryClick?.(subcategory)}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>Filter for {subcategory}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
       )
     },
   },
@@ -145,6 +176,7 @@ const columnConfig: (props: {
     id: "tvl",
     sortUndefined: "last",
     sortDescFirst: true,
+    enableMultiSort: true,
     accessorKey: "tvlPct",
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
@@ -190,6 +222,7 @@ const columnConfig: (props: {
     id: "fdv",
     sortUndefined: "last",
     sortDescFirst: true,
+    enableMultiSort: true,
     accessorFn: (row) => row.coin?.fdv,
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
@@ -239,9 +272,42 @@ const columnConfig: (props: {
     },
   },
   {
+    id: "ipc",
+    accessorKey: "ipc",
+    sortDescFirst: true,
+    enableMultiSort: true,
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted()
+      return (
+        <div className="flex items-center">
+          <InfoTooltip>
+            Individual Privacy Component, the number of privacy components in
+            the protocol that we are tracking.
+          </InfoTooltip>
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={() => {
+              column.toggleSorting()
+            }}
+            className="p-0!"
+          >
+            <span>IPC</span>
+            {match(isSorted)
+              .with(false, () => <ArrowUpDown />)
+              .with("asc", () => <ArrowUp />)
+              .with("desc", () => <ArrowDown />)
+              .exhaustive()}
+          </Button>
+        </div>
+      )
+    },
+  },
+  {
     id: "age",
     accessorKey: "liveWhenUnix",
     sortUndefined: "last",
+    enableMultiSort: true,
     sortDescFirst: false,
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
@@ -299,6 +365,7 @@ export const ProtocolOverviewTable = memo(
 
     const table = useReactTable({
       columns,
+      isMultiSortEvent: () => true,
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
       getSortedRowModel: getSortedRowModel(),
@@ -311,7 +378,10 @@ export const ProtocolOverviewTable = memo(
     })
 
     return (
-      <div className={cn("w-full text-sm font-medium", className)} {...props}>
+      <div
+        className={cn("w-full overflow-x-auto text-sm font-medium", className)}
+        {...props}
+      >
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -339,7 +409,10 @@ export const ProtocolOverviewTable = memo(
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="h-12">
+                    <TableCell
+                      key={cell.id}
+                      className="h-12! overflow-y-hidden"
+                    >
                       {match(cell.column.id)
                         .with("rank", () => {
                           return (

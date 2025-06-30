@@ -239,7 +239,11 @@ function ChartTooltipContent({
                     </div>
                     {item.value && (
                       <span className="text-foreground pl-4 font-mono font-medium tabular-nums">
-                        {prefix}
+                        {prefix && (
+                          <span className="text-secondary-foreground">
+                            {prefix}
+                          </span>
+                        )}
                         {typeof item.value === "number"
                           ? formatter.numberReadable(item.value)
                           : item.value.toLocaleString()}

@@ -21,16 +21,15 @@ import { Input } from "../ui/input"
 import { Separator } from "../ui/separator"
 import { ProtocolOverviewTable } from "./protocol-overview-table"
 
-const limit = 15
-
+const paginationLimits = [10, 15, 20]
 export const ProtocolOverviewTableHeader = memo(
   ({
     protocols,
     className,
     ...props
   }: { protocols: ProtocolOverview[] } & React.ComponentProps<"div">) => {
-    const [category, setCategory] = useState<string[]>([])
-    const [subcategory, setSubcategory] = useState<string[]>([])
+    const [categories, setCategories] = useState<string[]>([])
+    const [subCategories, setSubCategories] = useState<string[]>([])
 
     const [search, _setSearch] = useState("")
     const setSearch = useMemo(() => _.debounce(_setSearch, 50), [])
@@ -38,12 +37,12 @@ export const ProtocolOverviewTableHeader = memo(
     const { allCategory, allSubcategory, totalTvl } = useMemo(() => {
       return {
         allCategory: _.chain(protocols)
-          .map("category")
+          .flatMap("categories")
           .uniq()
           .map((category) => ({ label: category, value: category }))
           .value(),
         allSubcategory: _.chain(protocols)
-          .map("subcategory")
+          .flatMap("subCategories")
           .uniq()
           .map((subcategory) => ({ label: subcategory, value: subcategory }))
           .value(),
@@ -54,10 +53,14 @@ export const ProtocolOverviewTableHeader = memo(
     const filteredProtocols = useMemo(() => {
       return _.chain(protocols)
         .filter((protocol) =>
-          category.length ? category.includes(protocol.category) : true
+          categories.length
+            ? _.intersection(categories, protocol.categories).length > 0
+            : true
         )
         .filter((protocol) =>
-          subcategory.length ? subcategory.includes(protocol.subcategory) : true
+          subCategories.length
+            ? _.intersection(subCategories, protocol.subCategories).length > 0
+            : true
         )
         .map((protocol) => ({
           ...protocol,
@@ -72,22 +75,22 @@ export const ProtocolOverviewTableHeader = memo(
             : true
         )
         .value()
-    }, [protocols, category, subcategory, totalTvl, search])
+    }, [protocols, categories, subCategories, totalTvl, search])
 
     const [paginationState, setPaginationState] = useState<PaginationState>({
       pageIndex: 0,
-      pageSize: limit,
+      pageSize: paginationLimits[0],
     })
     const maxPageIndex = useMemo(() => {
-      return Math.floor(filteredProtocols.length / limit)
-    }, [filteredProtocols])
+      return Math.floor(filteredProtocols.length / paginationState.pageSize)
+    }, [filteredProtocols, paginationState.pageSize])
 
     useEffect(() => {
-      setPaginationState({
+      setPaginationState((p) => ({
+        ...p,
         pageIndex: 0,
-        pageSize: limit,
-      })
-    }, [category, subcategory, search])
+      }))
+    }, [categories, subCategories, search])
 
     return (
       <div className={cn(className)} {...props}>
@@ -140,16 +143,16 @@ export const ProtocolOverviewTableHeader = memo(
         <div className="flex items-center gap-2 px-3">
           <MultiSelectFilterCombobox
             options={allCategory}
-            value={category}
-            onChange={setCategory}
+            value={categories}
+            onChange={setCategories}
             label="Category"
             icon={ChartBarStacked}
           />
 
           <MultiSelectFilterCombobox
             options={allSubcategory}
-            value={subcategory}
-            onChange={setSubcategory}
+            value={subCategories}
+            onChange={setSubCategories}
             label="Subcategory"
             icon={ChartBarStacked}
           />
@@ -168,11 +171,11 @@ export const ProtocolOverviewTableHeader = memo(
           <Button
             variant="default"
             size="xs"
-            disabled={!search && !category.length && !subcategory.length}
+            disabled={!search && !categories.length && !subCategories.length}
             onClick={() => {
               setSearch("")
-              setCategory([])
-              setSubcategory([])
+              setCategories([])
+              setSubCategories([])
             }}
           >
             Reset
@@ -183,15 +186,15 @@ export const ProtocolOverviewTableHeader = memo(
           className="-my-2"
           protocols={filteredProtocols}
           onCategoryClick={(cat) => {
-            const isSelected = category.includes(cat)
+            const isSelected = categories.includes(cat)
             if (!isSelected) {
-              setCategory([...category, cat])
+              setCategories([...categories, cat])
             }
           }}
           onSubcategoryClick={(subcat) => {
-            const isSelected = subcategory.includes(subcat)
+            const isSelected = subCategories.includes(subcat)
             if (!isSelected) {
-              setSubcategory([...subcategory, subcat])
+              setSubCategories([...subCategories, subcat])
             }
           }}
           paginationState={paginationState}

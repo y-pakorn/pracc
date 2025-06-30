@@ -109,9 +109,9 @@ export const Header = memo(
             <CommandGroup heading="Protocols">
               {protocols.map((protocol) => (
                 <Link
-                  href={`/protocols/${protocol.name}`}
+                  href={`/protocol/${protocol.id}`}
                   prefetch={false}
-                  key={protocol.name}
+                  key={protocol.id}
                 >
                   <CommandItem>
                     <img
