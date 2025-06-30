@@ -67,9 +67,11 @@ export function OverallFdvChart({
           <h2 className="text-secondary-foreground text-sm font-medium">
             Total FDV
             <InfoTooltip>
-              Total FDV is the sum of all protocol&apos;s
-              <br />
-              fully diluted valuations if they have a token.
+              Total Fully Diluted Valuation
+              <div className="dark:text-secondary-foreground">
+                The sum of all protocol&apos;s fully diluted valuations if they
+                have a token.
+              </div>
             </InfoTooltip>
           </h2>
           <h1 className="text-2xl font-semibold">
