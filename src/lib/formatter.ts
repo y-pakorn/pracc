@@ -16,6 +16,7 @@ export const formatter = Object.freeze({
       thousandSeparated: true,
       trimMantissa: true,
       optionalMantissa: true,
+      lowPrecision: false,
     })
   },
   pct: (value: number | string, options?: { mantissa?: number }) => {
