@@ -379,7 +379,10 @@ export const ProtocolOverviewTable = memo(
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className={cn("w-full overflow-x-auto text-sm font-medium", className)}
+        className={cn(
+          "w-full overflow-x-auto overflow-y-hidden text-sm font-medium",
+          className
+        )}
         {...props}
       >
         <Table>
