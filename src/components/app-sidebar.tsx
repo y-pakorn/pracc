@@ -16,9 +16,9 @@ import {
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
+import { nav } from "@/config/nav"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
-import { nav } from "@/constants/nav"
 
 import { Button } from "./ui/button"
 
@@ -53,30 +53,30 @@ export function AppSidebar({
           <div className="flex flex-col gap-1">
             {section.items.map((item, i) => {
               return (
-                <Button
+                <Link
+                  href={item.href}
                   key={i}
-                  size="sm"
-                  variant={
-                    pathname === item.href ? "sidebarActive" : "sidebarInactive"
-                  }
                   className="group"
-                  onClick={() => {
-                    if (item.href) {
-                      if (item.isExternal) {
-                        window.open(item.href, "_blank", "noopener,noreferrer")
-                      } else {
-                        router.push(item.href)
-                      }
-                    }
-                  }}
+                  target={item.isExternal ? "_blank" : undefined}
+                  rel={item.isExternal ? "noopener noreferrer" : undefined}
                 >
-                  <item.icon />
-                  {item.label}
-                  <div className="flex-1" />
-                  {item.isExternal && (
-                    <ArrowUpRight className="text-muted-foreground size-4 transition-transform duration-700 group-hover:rotate-360" />
-                  )}
-                </Button>
+                  <Button
+                    size="sm"
+                    variant={
+                      pathname === item.href
+                        ? "sidebarActive"
+                        : "sidebarInactive"
+                    }
+                    className="group"
+                  >
+                    <item.icon />
+                    {item.label}
+                    <div className="flex-1" />
+                    {item.isExternal && (
+                      <ArrowUpRight className="text-muted-foreground size-4 transition-transform duration-700 group-hover:rotate-360" />
+                    )}
+                  </Button>
+                </Link>
               )
             })}
           </div>

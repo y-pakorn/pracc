@@ -5,9 +5,9 @@ import Link from "next/link"
 import { Github, MoonIcon, Search, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 
+import { nav } from "@/config/nav"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
-import { nav } from "@/constants/nav"
 import { MiniProtocol, ProtocolOverview } from "@/types"
 
 import { Button } from "./ui/button"

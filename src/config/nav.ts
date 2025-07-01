@@ -1,4 +1,11 @@
-import { Github, LayoutDashboard, Twitter } from "lucide-react"
+import {
+  BarChart,
+  ChartColumnStacked,
+  Github,
+  LayoutDashboard,
+  MessageCircle,
+  Twitter,
+} from "lucide-react"
 
 import { siteConfig } from "@/config/site"
 
@@ -11,11 +18,22 @@ export const nav = Object.freeze([
         label: "Overview",
         href: "/",
       },
+      {
+        icon: ChartColumnStacked,
+        label: "Dominance",
+        href: "/dominance",
+      },
     ],
   },
   {
     title: "About",
     items: [
+      {
+        icon: MessageCircle,
+        label: "Feedback",
+        href: "https://pracc.userjot.com/",
+        isExternal: true,
+      },
       {
         icon: Twitter,
         label: "Twitter",
