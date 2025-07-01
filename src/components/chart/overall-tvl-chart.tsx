@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react"
 import _ from "lodash"
-import { Check } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import { Bar, BarChart, XAxis } from "recharts"
 import { match } from "ts-pattern"
 
@@ -19,6 +19,16 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "../ui/chart"
+import { Checkbox } from "../ui/checkbox"
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "../ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Separator } from "../ui/separator"
 
 export function OverallTvlChart({
@@ -29,31 +39,49 @@ export function OverallTvlChart({
   tvls: Record<"month" | "year" | "all", OverallTvl[]>
 } & React.ComponentProps<"div">) {
   const [selectedTf, setSelectedTf] = useState<"month" | "year" | "all">("all")
+  const [excluded, setExcluded] = useState<string[]>([])
 
   const { tfs, config, protocols, usedData, lastTvl, firstTvl } =
     useMemo(() => {
       const protocols = _.chain(tvls[selectedTf])
         .flatMap((t) => _.keys(t.tvls))
         .uniq()
+        .map((p) => ({
+          protocol: p,
+          color: getColor(p).hex(),
+        }))
+        .value()
+      const tvl = _.chain(tvls[selectedTf])
+        .map((t) => {
+          const omitted = _.omit(t.tvls, excluded)
+          return {
+            ...t,
+            tvls: omitted,
+            totalTvl: _.chain(omitted).values().sum().value(),
+          }
+        })
+        .dropWhile((t) => !t.totalTvl)
         .value()
       return {
-        usedData: tvls[selectedTf],
+        usedData: tvl,
         tfs: _.keys(tvls),
         config: _.chain(protocols)
-          .map((p) => [
-            `tvls.${p}`,
+          .map(({ protocol, color }) => [
+            `tvls.${protocol}`,
             {
-              label: p,
-              color: getColor(p).hex(),
+              label: protocol,
+              color,
             },
           ])
           .fromPairs()
           .value() satisfies ChartConfig,
         protocols,
-        lastTvl: _.last(tvls[selectedTf])!,
-        firstTvl: _.first(tvls[selectedTf])!,
+        lastTvl: _.last(tvl)!,
+        firstTvl: _.first(tvl)!,
       }
-    }, [tvls, selectedTf])
+    }, [tvls, selectedTf, excluded])
+
+  const [filterOpen, setFilterOpen] = useState(false)
 
   return (
     <div
@@ -78,17 +106,87 @@ export function OverallTvlChart({
           </p>
         </div>
         <div className="flex-1" />
-        {tfs.map((tf) => (
-          <Button
-            key={tf}
-            variant={selectedTf === tf ? "default" : "outline"}
-            size="xs"
-            onClick={() => setSelectedTf(tf as "month" | "year" | "all")}
-          >
-            {_.startCase(tf)}{" "}
-            <Check className={cn(selectedTf !== tf && "hidden")} />
-          </Button>
-        ))}
+        <div className="flex flex-col items-end gap-2">
+          <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="xs">
+                Filter {excluded.length} protocols{" "}
+                <ChevronDown
+                  className={cn(
+                    "text-muted-foreground transition-transform",
+                    filterOpen && "rotate-180"
+                  )}
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <Command>
+                <CommandInput placeholder="Search protocols" />
+                <CommandList>
+                  <CommandGroup>
+                    {protocols.map(({ protocol, color }) => {
+                      const isIncluded = !excluded.includes(protocol)
+                      return (
+                        <CommandItem
+                          key={protocol}
+                          value={protocol}
+                          onSelect={(protocol) => {
+                            if (isIncluded) {
+                              setExcluded((e) => [...e, protocol])
+                            } else {
+                              setExcluded((e) =>
+                                e.filter((p) => p !== protocol)
+                              )
+                            }
+                          }}
+                        >
+                          <Checkbox checked={isIncluded} />
+                          {protocol}
+                          <div className="text-muted-foreground ml-auto text-xs">
+                            {formatter.pct(
+                              ((lastTvl.tvls as any)?.[protocol] || 0) /
+                                lastTvl.totalTvl
+                            )}
+                          </div>
+                          <div
+                            className="size-2 rounded-full"
+                            style={{
+                              backgroundColor: color,
+                            }}
+                          />
+                        </CommandItem>
+                      )
+                    })}
+                  </CommandGroup>
+
+                  {excluded.length > 0 && (
+                    <>
+                      <CommandSeparator />
+                      <CommandGroup>
+                        <CommandItem onSelect={() => setExcluded([])}>
+                          Clear All Filters
+                        </CommandItem>
+                      </CommandGroup>
+                    </>
+                  )}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <div className="flex items-center gap-2">
+            {tfs.map((tf) => (
+              <Button
+                key={tf}
+                variant={selectedTf === tf ? "default" : "outline"}
+                size="xs"
+                onClick={() => setSelectedTf(tf as "month" | "year" | "all")}
+              >
+                {_.startCase(tf)}{" "}
+                <Check className={cn(selectedTf !== tf && "hidden")} />
+              </Button>
+            ))}
+          </div>
+        </div>
       </div>
       <ChartContainer
         config={config}
@@ -152,12 +250,12 @@ export function OverallTvlChart({
               />
             }
           />
-          {protocols.map((protocol) => (
+          {protocols.map(({ protocol, color }) => (
             <Bar
               stackId="a"
               key={protocol}
               dataKey={`tvls.${protocol}`}
-              fill={getColor(protocol).hex()}
+              fill={color}
             />
           ))}
         </BarChart>

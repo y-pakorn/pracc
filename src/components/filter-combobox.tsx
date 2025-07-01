@@ -86,11 +86,8 @@ export const MultiSelectFilterCombobox = memo(
                 <>
                   <CommandSeparator />
                   <CommandGroup>
-                    <CommandItem
-                      className="justify-center border"
-                      onSelect={() => onChange([])}
-                    >
-                      Clear All Filter
+                    <CommandItem onSelect={() => onChange([])}>
+                      Clear All Filters
                     </CommandItem>
                   </CommandGroup>
                 </>
