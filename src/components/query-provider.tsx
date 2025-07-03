@@ -1,8 +1,9 @@
 "use client"
 
-import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister"
 import { QueryClient } from "@tanstack/react-query"
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client"
+
+import { createIDBPersister } from "@/lib/idb"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,9 +16,7 @@ const queryClient = new QueryClient({
   },
 })
 
-const persister = createAsyncStoragePersister({
-  storage: window.localStorage,
-})
+const persister = createIDBPersister()
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   return (
