@@ -4,7 +4,7 @@ import { memo, useMemo, useState } from "react"
 import dayjs from "dayjs"
 import _ from "lodash"
 import { Check } from "lucide-react"
-import { Bar, BarChart, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, Bar, BarChart, XAxis, YAxis } from "recharts"
 import { match } from "ts-pattern"
 
 import { getColor } from "@/lib/color"
@@ -117,7 +117,7 @@ export const ProtocolTvlChart = memo(
           config={config}
           className="bg-background h-[210px] w-full rounded-md p-2 pb-0 shadow-xs"
         >
-          <BarChart
+          <AreaChart
             accessibilityLayer
             data={usedData}
             margin={{
@@ -171,8 +171,28 @@ export const ProtocolTvlChart = memo(
                 />
               }
             />
-            <Bar dataKey="tvl" fill={config.tvl.color} />
-          </BarChart>
+            <defs>
+              <linearGradient id="fill-tvl" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0%"
+                  stopColor={config.tvl.color}
+                  stopOpacity={1}
+                />
+                <stop
+                  offset="100%"
+                  stopColor={config.tvl.color}
+                  stopOpacity={0}
+                />
+              </linearGradient>
+            </defs>
+            <Area
+              dataKey="tvl"
+              type="monotone"
+              stroke={config.tvl.color}
+              fill="url(#fill-tvl"
+              fillOpacity={0.4}
+            />
+          </AreaChart>
         </ChartContainer>
       </div>
     )

@@ -71,6 +71,11 @@ export type OverallFdv = {
   fdvs: Record<string, number>
 }
 
+export type ProtocolFdv = {
+  date: number
+  fdv: number
+}
+
 export type CoinGeckoCoin = {
   id: string
   symbol: string

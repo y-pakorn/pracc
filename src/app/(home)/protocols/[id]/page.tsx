@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import _ from "lodash"
 import {
   ArrowUpRight,
   ChevronDown,
@@ -16,7 +17,7 @@ import { criteria } from "@/config/critera"
 import { scoreTier } from "@/config/score-tier"
 import { formatter } from "@/lib/formatter"
 import { cn } from "@/lib/utils"
-import { getProtocol } from "@/services/data"
+import { getProtocol, getRawProtocols } from "@/services/data"
 import { Button } from "@/components/ui/button"
 import { CategoryBadge } from "@/components/ui/category-badge"
 import {
@@ -30,6 +31,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { ProtocolFdvChart } from "@/components/chart/protocol-fdv-chart"
 import { ProtocolTvlChart } from "@/components/chart/protocol-tvl-chart"
 import { InfoTooltip } from "@/components/info-tooltp"
 
@@ -52,7 +54,10 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  return []
+  const { protocols } = await getRawProtocols()
+  return protocols.map((p) => ({
+    id: p.id,
+  }))
 }
 
 export default async function ProtocolPage({
@@ -65,7 +70,7 @@ export default async function ProtocolPage({
 
   if (!p) return notFound()
 
-  const { protocol, internalProtocols, tvl } = p
+  const { protocol, internalProtocols, tvl, fdv, coin } = p
   const tier = scoreTier.find((t) => protocol.overall_score > t.gt)
 
   return (
@@ -90,6 +95,26 @@ export default async function ProtocolPage({
               </span>
             )}
           </p>
+          {coin && (
+            <div className="mt-2 flex items-center gap-1 text-sm font-medium">
+              <img src={coin.image} className="size-4 shrink-0 rounded-full" />
+              <div className="font-semibold">{_.upperCase(coin.symbol)}</div>
+              <div className="text-secondary-foreground ml-auto">
+                $
+                {formatter.numberReadable(coin.currentPrice, {
+                  mantissa: 4,
+                })}
+              </div>
+              <div
+                className={cn(
+                  "text-muted-foreground text-xs",
+                  coin.change24h > 0 ? "text-green-400" : "text-red-400"
+                )}
+              >
+                ({formatter.pct(coin.change24h / 100)})
+              </div>
+            </div>
+          )}
         </div>
         <Separator />
         <div className="inline-flex w-full items-center px-3">
@@ -245,6 +270,9 @@ export default async function ProtocolPage({
       </div>
       <div className="flex flex-1 flex-col gap-2">
         {tvl && <ProtocolTvlChart name={protocol.name} tvls={tvl} />}
+        {fdv && coin && (
+          <ProtocolFdvChart name={protocol.name} coin={coin} fdv={fdv} />
+        )}
 
         {internalProtocols.map((internalProtocol, i) => {
           return (

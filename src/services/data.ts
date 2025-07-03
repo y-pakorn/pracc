@@ -73,11 +73,11 @@ const getTvl = cache(async (s: string) => {
   return null
 })
 
-const getCoins = cache(async (coinIds: string[]) => {
+const getCoins = cache(async (coinIds: string[], sparkline: boolean = true) => {
   const response = await fetch(
     `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${encodeURIComponent(
       coinIds.join(",")
-    )}&price_change_percentage=24h&sparkline=true`
+    )}&price_change_percentage=24h&sparkline=${sparkline}`
   ).then((res) => res.json())
   const data = _.chain(response)
     .map((c) => ({
@@ -88,7 +88,7 @@ const getCoins = cache(async (coinIds: string[]) => {
       currentPrice: c.current_price as number,
       fdv: (c.current_price * c.total_supply) as number,
       change24h: c.price_change_percentage_24h as number,
-      fdvs: _.chain(c.sparkline_in_7d.price)
+      fdvs: _.chain(c.sparkline_in_7d?.price)
         .filter((_, i) => i % 12 === 0)
         .map((p) => p * c.total_supply)
         .value() as number[],
@@ -97,6 +97,18 @@ const getCoins = cache(async (coinIds: string[]) => {
     .mapValues((c) => c[0])
     .value()
   return data
+})
+
+const getCoinHistoricalData = cache(async (coinId: string) => {
+  if (!coinId) return null
+  const response = await fetch(
+    `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=365`
+  ).then((res) => res.json())
+  return response as {
+    prices: [number, number][]
+    market_caps: [number, number][]
+    total_volumes: [number, number][]
+  }
 })
 
 export const getOverviewProtocols = cache(
@@ -210,10 +222,18 @@ export const getProtocol = cache(async (id: string) => {
   if (!protocol) return null
 
   const tvl = await getTvl(protocol.defillama_slug)
+  const coinHistoricalData = await getCoinHistoricalData(protocol.coingecko_id)
+  const coin = await getCoins([protocol.coingecko_id], false)
 
   return {
     protocol,
     internalProtocols,
+    coin: coin[protocol.coingecko_id] || null,
+    fdv:
+      coinHistoricalData?.prices.map(([date, price]) => ({
+        date: dayjs.utc(date).startOf("day").unix(),
+        fdv: price * coin[protocol.coingecko_id].totalSupply,
+      })) || null,
     tvl: !tvl
       ? null
       : (() => {
