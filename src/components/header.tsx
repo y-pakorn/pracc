@@ -8,7 +8,7 @@ import { useTheme } from "next-themes"
 import { nav } from "@/config/nav"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
-import { MiniProtocol, ProtocolOverview } from "@/types"
+import { MiniProtocol } from "@/types"
 
 import { Button } from "./ui/button"
 import {
@@ -18,10 +18,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "./ui/command"
 import { Input } from "./ui/input"
-import { ScrollArea } from "./ui/scroll-area"
 
 export const Header = memo(
   ({
@@ -97,6 +95,7 @@ export const Header = memo(
                     prefetch={false}
                     rel={item.isExternal ? "noreferrer noopener" : undefined}
                     target={item.isExternal ? "_blank" : undefined}
+                    onClick={() => setOpen(false)}
                   >
                     <CommandItem>
                       <item.icon className="size-4 shrink-0" />
@@ -109,9 +108,10 @@ export const Header = memo(
             <CommandGroup heading="Protocols">
               {protocols.map((protocol) => (
                 <Link
-                  href={`/protocol/${protocol.id}`}
+                  href={`/protocols/${protocol.id}`}
                   prefetch={false}
                   key={protocol.id}
+                  onClick={() => setOpen(false)}
                 >
                   <CommandItem>
                     <img
