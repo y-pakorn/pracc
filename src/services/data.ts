@@ -222,18 +222,10 @@ export const getProtocol = cache(async (id: string) => {
   if (!protocol) return null
 
   const tvl = await getTvl(protocol.defillama_slug)
-  const coinHistoricalData = await getCoinHistoricalData(protocol.coingecko_id)
-  const coin = await getCoins([protocol.coingecko_id], false)
 
   return {
     protocol,
     internalProtocols,
-    coin: coin[protocol.coingecko_id] || null,
-    fdv:
-      coinHistoricalData?.prices.map(([date, price]) => ({
-        date: dayjs.utc(date).startOf("day").unix(),
-        fdv: price * coin[protocol.coingecko_id].totalSupply,
-      })) || null,
     tvl: !tvl
       ? null
       : (() => {

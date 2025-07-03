@@ -34,6 +34,9 @@ import {
 import { ProtocolFdvChart } from "@/components/chart/protocol-fdv-chart"
 import { ProtocolTvlChart } from "@/components/chart/protocol-tvl-chart"
 import { InfoTooltip } from "@/components/info-tooltp"
+import { TokenDisplay } from "@/components/token-display"
+
+export const dynamicParams = false
 
 export async function generateMetadata({
   params,
@@ -54,11 +57,10 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  // const { protocols } = await getRawProtocols()
-  // return protocols.map((p) => ({
-  //   id: p.id,
-  // }))
-  return []
+  const { protocols } = await getRawProtocols()
+  return protocols.map((p) => ({
+    id: p.id,
+  }))
 }
 
 export default async function ProtocolPage({
@@ -71,7 +73,7 @@ export default async function ProtocolPage({
 
   if (!p) return notFound()
 
-  const { protocol, internalProtocols, tvl, fdv, coin } = p
+  const { protocol, internalProtocols, tvl } = p
   const tier = scoreTier.find((t) => protocol.overall_score > t.gt)
 
   return (
@@ -96,25 +98,8 @@ export default async function ProtocolPage({
               </span>
             )}
           </p>
-          {coin && (
-            <div className="mt-2 flex items-center gap-1 text-sm font-medium">
-              <img src={coin.image} className="size-4 shrink-0 rounded-full" />
-              <div className="font-semibold">{_.upperCase(coin.symbol)}</div>
-              <div className="text-secondary-foreground ml-auto">
-                $
-                {formatter.numberReadable(coin.currentPrice, {
-                  mantissa: 4,
-                })}
-              </div>
-              <div
-                className={cn(
-                  "text-muted-foreground text-xs",
-                  coin.change24h > 0 ? "text-green-400" : "text-red-400"
-                )}
-              >
-                ({formatter.pct(coin.change24h / 100)})
-              </div>
-            </div>
+          {protocol.coingecko_id && (
+            <TokenDisplay coingeckoId={protocol.coingecko_id} />
           )}
         </div>
         <Separator />
@@ -271,8 +256,11 @@ export default async function ProtocolPage({
       </div>
       <div className="flex flex-1 flex-col gap-2">
         {tvl && <ProtocolTvlChart name={protocol.name} tvls={tvl} />}
-        {fdv && coin && (
-          <ProtocolFdvChart name={protocol.name} coin={coin} fdv={fdv} />
+        {protocol.coingecko_id && (
+          <ProtocolFdvChart
+            name={protocol.name}
+            coingeckoId={protocol.coingecko_id}
+          />
         )}
 
         {internalProtocols.map((internalProtocol, i) => {

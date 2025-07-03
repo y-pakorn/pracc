@@ -10,6 +10,7 @@ import { env } from "@/env.mjs"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
+import { QueryProvider } from "@/components/query-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 
 const font = Be_Vietnam_Pro({
@@ -87,7 +88,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             height={2}
             showSpinner={false}
           />
-          {children}
+          <QueryProvider>{children}</QueryProvider>
           <Toaster />
         </ThemeProvider>
       </body>
