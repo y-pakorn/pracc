@@ -161,6 +161,7 @@ const columnConfig: (props: {
   {
     id: "overallScore",
     accessorKey: "overallScore",
+    sortDescFirst: true,
     meta: {
       style: {
         textAlign: "center",
@@ -394,7 +395,12 @@ export const ProtocolOverviewTable = memo(
         }),
       [onCategoryClick, onSubcategoryClick]
     )
-    const [sorting, setSorting] = useState<SortingState>([])
+    const [sorting, setSorting] = useState<SortingState>([
+      {
+        id: "overallScore",
+        desc: true,
+      },
+    ])
 
     const table = useReactTable({
       getRowId: (row) => row.id,

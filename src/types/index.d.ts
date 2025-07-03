@@ -12,6 +12,24 @@ export type ProtocolOverview = {
   overallScore: number
 }
 
+export type RawInternalProtocol = {
+  asc_id: string
+  name: string
+  category: string
+  sub_category: string
+  live_at: string
+  privacy_stack: string // comma separated
+  tech_stack: string // comma separated
+  priv_who: number
+  priv_what: number
+  de_anon: number
+  liveness_req: number
+  base_maturity: number
+  punk_lv: number
+  overall_score: number
+  note: string
+}
+
 export type RawProtocol = {
   id: string
   name: string

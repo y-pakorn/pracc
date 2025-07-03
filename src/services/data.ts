@@ -9,16 +9,25 @@ import {
   OverallFdv,
   OverallTvl,
   ProtocolOverview,
+  RawInternalProtocol,
   RawProtocol,
 } from "@/types"
 
-export const getRawProtocols = cache(async (): Promise<RawProtocol[]> => {
-  const response = await fetch(env.DATA_API_URL)
-  return response.json()
-})
+export const getRawProtocols = cache(
+  async (): Promise<{
+    protocols: RawProtocol[]
+    internalProtocols: RawInternalProtocol[]
+  }> => {
+    const response = await fetch(env.DATA_API_URL).then((res) => res.json())
+    return {
+      protocols: response["Protocols"],
+      internalProtocols: response["Internal Protocols"],
+    }
+  }
+)
 
 export const getMiniProtocols = cache(async (): Promise<MiniProtocol[]> => {
-  const protocols = await getRawProtocols()
+  const { protocols } = await getRawProtocols()
   return _.chain(protocols)
     .map((p) => ({
       id: p.id,
@@ -96,7 +105,7 @@ export const getOverviewProtocols = cache(
     allTvls: Record<"month" | "year" | "all", OverallTvl[]>
     allFdvs: OverallFdv[]
   }> => {
-    const rawProtocols = await getRawProtocols()
+    const { protocols: rawProtocols } = await getRawProtocols()
     const coins = await getCoins(
       rawProtocols.map((r) => r.coingecko_id).filter((c) => c !== "")
     )
@@ -171,11 +180,7 @@ export const getOverviewProtocols = cache(
       .value()
 
     return {
-      protocols: _.orderBy(
-        protocols,
-        ["overallScore", "liveWhen"],
-        ["desc", "asc"]
-      ),
+      protocols,
       allTvls: {
         month,
         year,
@@ -195,3 +200,14 @@ export const getOverviewProtocols = cache(
     }
   }
 )
+
+export const getProtocol = cache(async (id: string) => {
+  const { protocols, internalProtocols: rawInternalProtocols } =
+    await getRawProtocols()
+  const protocol = protocols.find((p) => p.id === id)
+  const internalProtocols = rawInternalProtocols.filter((p) => p.asc_id === id)
+
+  if (!protocol) return null
+
+  const tvl = await getTvl(protocol.defillama_slug)
+})

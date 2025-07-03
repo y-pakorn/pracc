@@ -4,6 +4,7 @@ import {
   ChartColumnStacked,
   Github,
   LayoutDashboard,
+  List,
   MessageCircle,
   Twitter,
 } from "lucide-react"
@@ -18,6 +19,11 @@ export const nav = Object.freeze([
         icon: LayoutDashboard,
         label: "Overview",
         href: "/",
+      },
+      {
+        icon: List,
+        label: "Protocols",
+        href: "/protocols",
       },
       {
         icon: ChartColumnStacked,

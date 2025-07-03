@@ -30,8 +30,14 @@ export const ProtocolOverviewTableHeader = memo(
   ({
     protocols,
     className,
+    limits = paginationLimits,
+    defaultLimit = limits[0],
     ...props
-  }: { protocols: ProtocolOverview[] } & React.ComponentProps<"div">) => {
+  }: {
+    protocols: ProtocolOverview[]
+    defaultLimit?: number
+    limits?: number[]
+  } & React.ComponentProps<"div">) => {
     const [categories, setCategories] = useState<string[]>([])
     const [subCategories, setSubCategories] = useState<string[]>([])
 
@@ -84,7 +90,7 @@ export const ProtocolOverviewTableHeader = memo(
 
     const [paginationState, setPaginationState] = useState<PaginationState>({
       pageIndex: 0,
-      pageSize: paginationLimits[0],
+      pageSize: defaultLimit,
     })
     const maxPageIndex = useMemo(() => {
       return Math.floor(filteredProtocols.length / paginationState.pageSize)
@@ -121,7 +127,7 @@ export const ProtocolOverviewTableHeader = memo(
               </Button>
             </SelectTrigger>
             <SelectContent>
-              {paginationLimits.map((limit) => (
+              {limits.map((limit) => (
                 <SelectItem key={limit} value={limit.toString()}>
                   {limit}
                 </SelectItem>
