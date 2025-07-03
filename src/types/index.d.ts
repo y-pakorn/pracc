@@ -8,8 +8,8 @@ export type ProtocolOverview = {
   website: string
   tvl: number | null
   coin: CoinGeckoCoin | null
-  score: number | null
   ipc: number
+  overallScore: number
 }
 
 export type RawProtocol = {
@@ -23,6 +23,7 @@ export type RawProtocol = {
   categories: string // comma separated
   sub_categories: string // comma separated
   ipc: number
+  overall_score: number
 }
 
 export type MiniProtocol = {

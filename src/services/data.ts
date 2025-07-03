@@ -144,8 +144,8 @@ export const getOverviewProtocols = cache(
           logo: rawProtocol.logo_url,
           tvl: _.last(tvl)?.tvl ?? null,
           coin: coin ? _.omit(coin, "fdvs") : null,
-          score: null,
           ipc: rawProtocol.ipc,
+          overallScore: rawProtocol.overall_score,
         }
       })
     )
@@ -171,7 +171,11 @@ export const getOverviewProtocols = cache(
       .value()
 
     return {
-      protocols,
+      protocols: _.orderBy(
+        protocols,
+        ["overallScore", "liveWhen"],
+        ["desc", "asc"]
+      ),
       allTvls: {
         month,
         year,

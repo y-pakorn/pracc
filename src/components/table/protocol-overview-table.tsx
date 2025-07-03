@@ -159,10 +159,45 @@ const columnConfig: (props: {
     },
   },
   {
+    id: "overallScore",
+    accessorKey: "overallScore",
+    meta: {
+      style: {
+        textAlign: "center",
+      },
+    },
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted()
+      return (
+        <div className="flex items-center">
+          <InfoTooltip>Overall Score</InfoTooltip>
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={() => {
+              column.toggleSorting()
+            }}
+            className="p-0!"
+          >
+            <span>Score</span>
+            {match(isSorted)
+              .with(false, () => <ArrowUpDown />)
+              .with("asc", () => <ArrowUp />)
+              .with("desc", () => <ArrowDown />)
+              .exhaustive()}
+          </Button>
+        </div>
+      )
+    },
+    cell: ({ getValue }) => {
+      const overallScore = getValue<number>()
+      return <span>{overallScore}</span>
+    },
+  },
+  {
     id: "tvl",
     sortUndefined: "last",
     sortDescFirst: true,
-    enableMultiSort: true,
     accessorKey: "tvlPct",
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
@@ -208,7 +243,6 @@ const columnConfig: (props: {
     id: "fdv",
     sortUndefined: "last",
     sortDescFirst: true,
-    enableMultiSort: true,
     accessorFn: (row) => row.coin?.fdv,
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
@@ -261,7 +295,11 @@ const columnConfig: (props: {
     id: "ipc",
     accessorKey: "ipc",
     sortDescFirst: true,
-    enableMultiSort: true,
+    meta: {
+      style: {
+        textAlign: "center",
+      },
+    },
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
       return (
@@ -296,7 +334,6 @@ const columnConfig: (props: {
     id: "age",
     accessorKey: "liveWhenUnix",
     sortUndefined: "last",
-    enableMultiSort: true,
     sortDescFirst: false,
     header: ({ column }) => {
       const isSorted = column.getIsSorted()
@@ -403,7 +440,10 @@ export const ProtocolOverviewTable = memo(
                           ease: "easeOut",
                         },
                       }}
-                      className="text-muted-foreground h-10 px-4 text-left align-middle text-xs font-medium [&:has([role=checkbox])]:pr-0"
+                      style={{
+                        ...(header.column.columnDef.meta as any)?.style,
+                      }}
+                      className="text-muted-foreground h-10 px-2 text-left align-middle text-xs font-medium first:pl-4 last:pr-4 [&:has([role=checkbox])]:pr-0"
                     >
                       <motion.div
                         whileHover={{
@@ -462,6 +502,9 @@ export const ProtocolOverviewTable = memo(
                             delay: i * 0.05 + cellIndex * 0.02,
                             ease: "easeOut",
                           },
+                        }}
+                        style={{
+                          ...(cell.column.columnDef.meta as any)?.style,
                         }}
                         className="h-14! overflow-y-hidden px-2 align-middle first:pl-4 last:pr-4 [&:has([role=checkbox])]:pr-0"
                       >

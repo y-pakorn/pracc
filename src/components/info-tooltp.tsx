@@ -21,7 +21,7 @@ export const InfoTooltip = memo(
           <Button
             variant="ghost"
             size="xsIcon"
-            className={cn("p-0", className)}
+            className={cn("m-0.5! h-fit w-fit p-0!", className)}
             {...props}
           >
             <Info />
