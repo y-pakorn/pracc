@@ -1,5 +1,6 @@
 import {
   BarChart,
+  Book,
   ChartColumnStacked,
   Github,
   LayoutDashboard,
@@ -28,6 +29,11 @@ export const nav = Object.freeze([
   {
     title: "About",
     items: [
+      {
+        icon: Book,
+        label: "Methodology",
+        href: "/methodology",
+      },
       {
         icon: MessageCircle,
         label: "Feedback",

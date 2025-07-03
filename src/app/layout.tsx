@@ -75,7 +75,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
-        className={cn("bg-background min-h-screen antialiased", font.className)}
+        className={cn(
+          "bg-background min-h-screen tracking-[-0.0125em] antialiased",
+          font.className
+        )}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
           {children}
