@@ -17,6 +17,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
 import { match } from "ts-pattern"
 
+import { scoreTier } from "@/config/score-tier"
 import { dayjs } from "@/lib/dayjs"
 import { formatter } from "@/lib/formatter"
 import { cn } from "@/lib/utils"
@@ -192,7 +193,20 @@ const columnConfig: (props: {
     },
     cell: ({ getValue }) => {
       const overallScore = getValue<number>()
-      return <span>{overallScore}</span>
+      const { color, emoji, gt } = _.find(
+        scoreTier,
+        (tier) => overallScore >= tier.gt
+      )!
+      return (
+        <span
+          className="text-sm font-semibold"
+          style={{
+            color,
+          }}
+        >
+          {overallScore} {emoji}
+        </span>
+      )
     },
   },
   {
