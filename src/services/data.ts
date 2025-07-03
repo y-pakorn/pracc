@@ -21,7 +21,7 @@ export const getRawProtocols = cache(
     const response = await fetch(env.DATA_API_URL).then((res) => res.json())
     return {
       protocols: response["Protocols"],
-      internalProtocols: response["Internal Protocols"],
+      internalProtocols: response["InternalProtocols"],
     }
   }
 )
@@ -210,4 +210,34 @@ export const getProtocol = cache(async (id: string) => {
   if (!protocol) return null
 
   const tvl = await getTvl(protocol.defillama_slug)
+
+  return {
+    protocol,
+    internalProtocols,
+    tvl: !tvl
+      ? null
+      : (() => {
+          const iter = _.chain(tvl)
+            .map((d) => ({
+              date: dayjs
+                .utc(d.date * 1000)
+                .startOf("day")
+                .unix(),
+              tvl: d.tvl,
+            }))
+            .sortBy((d) => -d.date)
+          return {
+            month: iter.slice(0, 60).reverse().value(),
+            year: iter
+              .slice(0, 520)
+              .filter((_, i) => i % 7 === 0)
+              .reverse()
+              .value(),
+            all: iter
+              .filter((_, i) => i % 30 === 0)
+              .reverse()
+              .value(),
+          }
+        })(),
+  }
 })

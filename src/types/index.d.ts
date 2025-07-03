@@ -33,6 +33,8 @@ export type RawInternalProtocol = {
 export type RawProtocol = {
   id: string
   name: string
+  description?: string
+  twitter_url?: string
   live_at: string
   url: string
   logo_url: string
@@ -56,6 +58,11 @@ export type OverallTvl = {
   date: number
   totalTvl: number
   tvls: Record<string, number>
+}
+
+export type ProtocolTvl = {
+  date: number
+  tvl: number
 }
 
 export type OverallFdv = {

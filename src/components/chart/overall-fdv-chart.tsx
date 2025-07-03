@@ -26,7 +26,7 @@ export function OverallFdvChart({
 }: {
   fdvs: OverallFdv[]
 } & React.ComponentProps<"div">) {
-  const { config, protocols, change, firstFdv, lastFdv } = useMemo(() => {
+  const { config, protocols, firstFdv, lastFdv } = useMemo(() => {
     const protocols = _.chain(fdvs)
       .map((f) => _.keys(f.fdvs))
       .flatten()
@@ -54,6 +54,16 @@ export function OverallFdvChart({
     }
   }, [fdvs])
 
+  const { current, change24h } = useMemo(() => {
+    const td = fdvs[fdvs.length - 1]
+    const yd = fdvs[fdvs.length - 2]
+    const change24h = (td.totalFdv - yd.totalFdv) / yd.totalFdv
+    return {
+      current: td.totalFdv,
+      change24h,
+    }
+  }, [fdvs])
+
   return (
     <div
       className={cn(
@@ -76,14 +86,15 @@ export function OverallFdvChart({
           </h2>
           <h1 className="text-2xl font-semibold">
             <span className="text-secondary-foreground">$</span>
-            {formatter.number(lastFdv.totalFdv)}{" "}
+            {formatter.number(current)}{" "}
             <span
               className={cn(
                 "text-muted-foreground text-base font-medium",
-                change !== 0 && (change > 0 ? "text-green-400" : "text-red-400")
+                change24h !== 0 &&
+                  (change24h > 0 ? "text-green-400" : "text-red-400")
               )}
             >
-              ({formatter.pct(change)})
+              ({formatter.pct(change24h)})
             </span>
           </h1>
           <div className="text-muted-foreground -mt-0.5 inline-flex items-center text-xs">

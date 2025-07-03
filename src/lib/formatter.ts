@@ -1,5 +1,7 @@
 import numbro from "numbro"
 
+import { dayjs } from "@/lib/dayjs"
+
 export const formatter = Object.freeze({
   number: (value: number | string, options?: { mantissa?: number }) => {
     return numbro(value).format({
@@ -26,5 +28,8 @@ export const formatter = Object.freeze({
       average: true,
       thousandSeparated: true,
     })
+  },
+  month: (value: number | string) => {
+    return dayjs(value).format("MM/YYYY")
   },
 })

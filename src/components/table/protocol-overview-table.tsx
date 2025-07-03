@@ -63,7 +63,7 @@ const columnConfig: (props: {
           <img src={logo} alt={name} className="size-5 shrink-0 rounded-full" />
           <Link
             prefetch={false}
-            href={`/protocol/${id}`}
+            href={`/protocols/${id}`}
             className="font-semibold hover:underline"
           >
             {name}

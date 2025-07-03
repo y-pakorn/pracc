@@ -83,6 +83,17 @@ export function OverallTvlChart({
 
   const [filterOpen, setFilterOpen] = useState(false)
 
+  const { current, change24h } = useMemo(() => {
+    const tvl = tvls["month"]
+    const td = tvl[tvl.length - 1]
+    const yd = tvl[tvl.length - 2]
+    const change24h = (td.totalTvl - yd.totalTvl) / yd.totalTvl
+    return {
+      current: td.totalTvl,
+      change24h,
+    }
+  }, [tvls])
+
   return (
     <div
       className={cn(
@@ -98,7 +109,16 @@ export function OverallTvlChart({
           </h2>
           <h1 className="text-2xl font-semibold">
             <span className="text-secondary-foreground">$</span>
-            {formatter.number(lastTvl.totalTvl)}
+            {formatter.number(current)}{" "}
+            <span
+              className={cn(
+                "text-muted-foreground text-base font-medium",
+                change24h !== 0 &&
+                  (change24h > 0 ? "text-green-400" : "text-red-400")
+              )}
+            >
+              ({formatter.pct(change24h)})
+            </span>
           </h1>
           <p className="text-muted-foreground mt-0.5 text-xs">
             {dayjs.utc(firstTvl.date * 1000).format("DD/MM/YYYY")} -{" "}
