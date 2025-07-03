@@ -23,7 +23,6 @@ import {
 import { ProtocolTvlChart } from "@/components/chart/protocol-tvl-chart"
 import { InfoTooltip } from "@/components/info-tooltp"
 
-export const revalidate = false
 export const dynamic = "force-static"
 
 export default async function ProtocolPage({
