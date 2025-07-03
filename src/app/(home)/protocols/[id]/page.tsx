@@ -54,10 +54,11 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const { protocols } = await getRawProtocols()
-  return protocols.map((p) => ({
-    id: p.id,
-  }))
+  // const { protocols } = await getRawProtocols()
+  // return protocols.map((p) => ({
+  //   id: p.id,
+  // }))
+  return []
 }
 
 export default async function ProtocolPage({
