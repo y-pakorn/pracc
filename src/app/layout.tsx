@@ -1,9 +1,10 @@
 import "@/styles/globals.css"
 
 import type { Metadata, Viewport } from "next"
-import { Be_Vietnam_Pro, Rubik, Work_Sans } from "next/font/google"
+import { Be_Vietnam_Pro } from "next/font/google"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { Analytics } from "@vercel/analytics/next"
+import NextTopLoader from "nextjs-toploader"
 
 import { env } from "@/env.mjs"
 import { siteConfig } from "@/config/site"
@@ -81,6 +82,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
+          <NextTopLoader
+            color="var(--primary)"
+            height={2}
+            showSpinner={false}
+          />
           {children}
           <Toaster />
         </ThemeProvider>
