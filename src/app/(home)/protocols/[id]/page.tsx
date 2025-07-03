@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { notFound } from "next/navigation"
 import {
   ArrowUpRight,
   ChevronLeft,
@@ -53,29 +54,7 @@ export default async function ProtocolPage({
   const { id } = await params
   const p = await getProtocol(id)
 
-  if (!p)
-    return (
-      <div className="flex h-full flex-1 flex-col items-center justify-center gap-2 text-center">
-        <div>
-          <div className="text-2xl font-semibold">Protocol not found</div>
-          <div className="text-muted-foreground text-sm">
-            The protocol you are looking for does not exist.
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/">
-            <Button size="xs" variant="outline">
-              <ChevronLeft /> Go Back
-            </Button>
-          </Link>
-          <Link href="/protocols">
-            <Button size="xs" variant="outline">
-              Browse Protocols <List />
-            </Button>
-          </Link>
-        </div>
-      </div>
-    )
+  if (!p) return notFound()
 
   const { protocol, internalProtocols, tvl } = p
 
