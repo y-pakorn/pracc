@@ -1,5 +1,12 @@
+import { Metadata } from "next"
+
 import { getOverviewProtocols } from "@/services/data"
 import { ProtocolOverviewTableHeader } from "@/components/table/protocol-overview-table-header"
+
+export const metadata: Metadata = {
+  title: "Protocols",
+  description: "A list of all privacy preserving protocols",
+}
 
 export default async function ProtocolsPage() {
   const { protocols } = await getOverviewProtocols()
