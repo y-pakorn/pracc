@@ -23,7 +23,27 @@ import {
 import { ProtocolTvlChart } from "@/components/chart/protocol-tvl-chart"
 import { InfoTooltip } from "@/components/info-tooltp"
 
-export const dynamic = "force-static"
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const p = await getProtocol(id)
+  if (!p)
+    return {
+      title: "Protocol not found",
+      description: "The protocol you are looking for does not exist.",
+    }
+  return {
+    title: p.protocol.name,
+    description: p.protocol.description,
+  }
+}
+
+export async function generateStaticParams() {
+  return []
+}
 
 export default async function ProtocolPage({
   params,
