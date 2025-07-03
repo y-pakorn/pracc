@@ -234,7 +234,11 @@ export const getProtocol = cache(async (id: string) => {
               .reverse()
               .value(),
             all: iter
-              .filter((_, i) => i % 30 === 0)
+              .filter(
+                (_, i) =>
+                  i % Math.max(1, Math.min(30, Math.floor(tvl.length / 30))) ===
+                  0
+              )
               .reverse()
               .value(),
           }

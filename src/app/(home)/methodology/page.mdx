@@ -124,7 +124,8 @@ An attacker can see the precise type of action performed and all of its detailed
 ##### Characteristics
 
 - Public data reveals the specific function called and its arguments.
-  > Example: `[someone]` swaps exactly `5000 USDT` for `2 ETH`. Or `[someone]` sends exactly `1 ETH` to `[another pseudonym]`.
+
+> Example: `[someone]` swaps exactly `5000 USDT` for `2 ETH`. Or `[someone]` sends exactly `1 ETH` to `[another pseudonym]`.
 
 ##### Illustrative Protocols
 
@@ -140,7 +141,8 @@ An attacker can discern the general _type_ of action being performed, but critic
 
 - The specific values within an action are obscured.
 - Actions may be batched or aggregated, revealing a total but not individual contributions.
-  > Example: The public data shows that `[a bunch of addresses]` collectively lent `999 USDT`, but individual amounts are unknown. Or, `[someone]` vote for `[some options]` in a governance proposal.
+
+> Example: The public data shows that `[a bunch of addresses]` collectively lent `999 USDT`, but individual amounts are unknown. Or, `[someone]` vote for `[some options]` in a governance proposal.
 
 ##### Illustrative Protocols
 
@@ -150,8 +152,9 @@ An attacker can discern the general _type_ of action being performed, but critic
 
 ##### Definition
 
-- All transaction details beyond the proof of validity are encrypted or otherwise cryptographically hidden.
-  > Example: Public data only shows that `[someone]` did `[something]` by interacting with the protocol's smart contract.
+All transaction details beyond the proof of validity are encrypted or otherwise cryptographically hidden.
+
+> Example: Public data only shows that `[someone]` did `[something]` by interacting with the protocol's smart contract.
 
 ##### Illustrative Protocols
 
@@ -161,7 +164,7 @@ An attacker can discern the general _type_ of action being performed, but critic
 
 This criterion evaluates the protocol’s reliance on trusted or privileged entities. It measures how difficult it is for such independent entities to be compromised or forced to collude to reverse the privacy guarantees (of "Who" or "What") back to Level 0.
 
-This is framed by the **"Government Test"**: Can governments (individually or jointly) legally and practically force the protocol to reveal what was made private?
+This is framed by the **"Government Test"**: Can governments (individually or jointly) legally and practically force the protocol to reveal what was made private.
 
 #### Level 0: Centralized Trust / Fails "Government Test"
 
@@ -182,9 +185,9 @@ De-anonymization requires the active collusion or compromise of a significant nu
 
 ##### Characteristics
 
-    - The protocol relies on a large set of validators or sequencers distributed across many legal jurisdictions.
-    - Security practices like frequent, automated rotation of cryptographic keys among a distributed set of parties are employed.
-    - Compromising a minority of participants does not compromise the privacy of the system.
+- The protocol relies on a large set of validators or sequencers distributed across many legal jurisdictions.
+- Security practices like frequent, automated rotation of cryptographic keys among a distributed set of parties are employed.
+- Compromising a minority of participants does not compromise the privacy of the system.
 
 #### Level 2: Trustless / Self-Sovereign
 
@@ -194,7 +197,7 @@ The protocol is architected such that no entity, or even the complete collusion 
 
 ##### Characteristics
 
-    - All sensitive user data is either encrypted client-side with keys exclusively controlled by the user, or never leaves the user’s local environment at all.
+- All sensitive user data is either encrypted client-side with keys exclusively controlled by the user, or never leaves the user’s local environment at all.
 
 ## 4. Evaluation Category II: Robustness
 
@@ -202,7 +205,7 @@ This category assesses the protocol's operational resilience. It focuses on how 
 
 ### 4.1. Criterion: Protocol Survivability
 
-This criterion evaluates the protocol's dependency on specific infrastructure or centralized parties to function correctly and recover from failure. It asks: How difficult is it to take the protocol down, and what is required for it to continue operating?
+This criterion evaluates the protocol's dependency on specific infrastructure or centralized parties to function correctly and recover from failure. It asks: How difficult is it to take the protocol down, and what is required for it to continue operating.
 
 #### Level 0: Fragile
 
@@ -262,8 +265,8 @@ The underlying technology has been rolled out at a significant scale and has a m
 
 ##### Examples
 
-    - Groth16 (PLONK, STARK, and its variants are migrating towards this level as they accumulate more production time)
-    - Production-grade TEE
+- Groth16 (PLONK, STARK, and its variants are migrating towards this level as they accumulate more production time)
+- Production-grade TEE
 
 #### Level 2: Mature
 
@@ -273,5 +276,5 @@ The underlying technology is considered a standard primitive in the broader cryp
 
 ##### Examples
 
-    - Standard public-key cryptography (e.g., RSA, ECDSA)
-    - Well-vetted hash functions (e.g., SHA-256).
+- Standard public-key cryptography (e.g., RSA, ECDSA)
+- Well-vetted hash functions (e.g., SHA-256).

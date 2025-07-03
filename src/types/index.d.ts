@@ -20,12 +20,12 @@ export type RawInternalProtocol = {
   live_at: string
   privacy_stack: string // comma separated
   tech_stack: string // comma separated
-  priv_who: number
-  priv_what: number
-  de_anon: number
-  liveness_req: number
-  base_maturity: number
-  punk_lv: number
+  priv_who: number | string
+  priv_what: number | string
+  de_anon: number | string
+  liveness_req: number | string
+  base_maturity: number | string
+  punk_lv: number | string
   overall_score: number
   note: string
 }

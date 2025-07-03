@@ -2,7 +2,9 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import {
   ArrowUpRight,
+  ChevronDown,
   ChevronLeft,
+  Circle,
   ExternalLink,
   Globe,
   List,
@@ -10,11 +12,18 @@ import {
 } from "lucide-react"
 import { match, P } from "ts-pattern"
 
+import { criteria } from "@/config/critera"
+import { scoreTier } from "@/config/score-tier"
 import { formatter } from "@/lib/formatter"
 import { cn } from "@/lib/utils"
 import { getProtocol } from "@/services/data"
 import { Button } from "@/components/ui/button"
 import { CategoryBadge } from "@/components/ui/category-badge"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
 import {
   Tooltip,
@@ -57,10 +66,16 @@ export default async function ProtocolPage({
   if (!p) return notFound()
 
   const { protocol, internalProtocols, tvl } = p
+  const tier = scoreTier.find((t) => protocol.overall_score > t.gt)
 
   return (
     <div className="flex gap-4">
-      <div className="bg-card w-2xs space-y-2 rounded-md border py-2">
+      <div
+        className="bg-card sticky h-fit w-2xs shrink-0 space-y-2 rounded-md border py-2"
+        style={{
+          top: "calc(var(--header-height) + 1rem)",
+        }}
+      >
         <div className="space-y-1 px-3 py-2">
           <img
             src={protocol.logo_url}
@@ -77,6 +92,25 @@ export default async function ProtocolPage({
           </p>
         </div>
         <Separator />
+        <div className="inline-flex w-full items-center px-3">
+          <div className="text-secondary-foreground text-sm font-medium">
+            Overall Score
+            <InfoTooltip>
+              Calculated from average score of all of the privacy components in
+              the protocol.
+            </InfoTooltip>
+          </div>
+          <div
+            className="ml-auto text-2xl font-semibold"
+            style={{
+              color: tier?.color,
+            }}
+          >
+            {protocol.overall_score || "N/A"}
+            {tier?.emoji}
+          </div>
+        </div>
+        <Separator />
         <div className="flex flex-wrap items-center gap-1 px-2 text-xs font-medium">
           {[
             {
@@ -91,11 +125,6 @@ export default async function ProtocolPage({
               value: protocol.ipc,
               tooltip:
                 "The amount of privacy-preserving features the protocol has",
-            },
-            {
-              label: "Overall Score",
-              value: protocol.overall_score,
-              tooltip: "The overall score of the protocol",
             },
             {
               label: "Coingecko ID",
@@ -216,6 +245,148 @@ export default async function ProtocolPage({
       </div>
       <div className="flex flex-1 flex-col gap-2">
         {tvl && <ProtocolTvlChart name={protocol.name} tvls={tvl} />}
+
+        {internalProtocols.map((internalProtocol, i) => {
+          return (
+            <Collapsible
+              defaultOpen
+              key={i}
+              className="bg-card rounded-md border py-2"
+            >
+              <div className="flex items-center gap-2 px-3">
+                <div className="-space-y-1">
+                  <p className="text-muted-foreground text-xs">
+                    Privacy Analysis
+                  </p>
+                  <h2 className="font-semibold">
+                    {internalProtocol.name
+                      ? `${protocol.name} - ${internalProtocol.name}`
+                      : protocol.name}
+                  </h2>
+                </div>
+                <div className="flex-1" />
+                <InfoTooltip className="text-muted-foreground">
+                  Calculated from all of the scores of each criteria.
+                </InfoTooltip>
+                <div className="text-secondary-foreground font-medium">
+                  Total Score: {internalProtocol.overall_score || "N/A"}
+                </div>
+                <CollapsibleTrigger>
+                  <ChevronDown className="text-muted-foreground" />
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent className="mt-2 space-y-2">
+                <Separator />
+                <div className="grid grid-cols-1 gap-2 px-2">
+                  {(
+                    [
+                      {
+                        key: "who",
+                        value: internalProtocol.priv_who,
+                      },
+                      {
+                        key: "what",
+                        value: internalProtocol.priv_what,
+                      },
+                      {
+                        key: "deanon",
+                        value: internalProtocol.de_anon,
+                      },
+                      {
+                        key: "liveness",
+                        value: internalProtocol.liveness_req,
+                      },
+                      {
+                        key: "maturity",
+                        value: internalProtocol.base_maturity,
+                      },
+                    ] as const
+                  ).map(({ key, value }) => (
+                    <div
+                      key={key}
+                      className="bg-background space-y-3 rounded-md p-3"
+                    >
+                      <Collapsible className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium">
+                            {criteria[key].definition.title}
+                          </h3>
+                          <CollapsibleTrigger>
+                            <ChevronDown className="text-muted-foreground" />
+                          </CollapsibleTrigger>
+                        </div>
+                        <CollapsibleContent>
+                          <div className="text-secondary-foreground text-sm whitespace-pre-wrap">
+                            {criteria[key].definition.description}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                      <Separator />
+                      {value === "" ? (
+                        <div className="text-2xl font-semibold">
+                          <span className="text-secondary-foreground">
+                            Stage:
+                          </span>{" "}
+                          N/A
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-between text-2xl">
+                            <div className="font-semibold">
+                              <span className="text-secondary-foreground">
+                                Stage:
+                              </span>{" "}
+                              {criteria[key].scores[value].title}
+                            </div>
+                            <div
+                              className="font-bold"
+                              style={{
+                                color: "white",
+                                WebkitTextStroke:
+                                  "4.5px var(--accent-foreground)",
+                                paintOrder: "stroke fill",
+                              }}
+                            >
+                              {value}
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="space-y-1">
+                              <div className="text-muted-foreground text-xs">
+                                Definition
+                              </div>
+                              <div className="text-body-foreground text-sm whitespace-pre-wrap">
+                                {criteria[key].scores[value].definition}
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="text-muted-foreground text-xs">
+                                Characteristics
+                              </div>
+                              <div className="text-body-foreground space-y-0.5 text-sm whitespace-pre-wrap">
+                                {criteria[key].scores[
+                                  value
+                                ].characteristics.map((characteristic) => (
+                                  <div
+                                    key={characteristic}
+                                    className="flex items-center"
+                                  >
+                                    <Circle className="fill-body-foreground mx-2 size-1.5 shrink-0" />
+                                    {characteristic}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )
+        })}
       </div>
     </div>
   )

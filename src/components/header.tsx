@@ -47,7 +47,7 @@ export const Header = memo(
     return (
       <>
         <div
-          className={cn("sticky flex items-center gap-2", className)}
+          className={cn("sticky top-0 flex items-center gap-2", className)}
           {...props}
         >
           <div className="relative w-sm">

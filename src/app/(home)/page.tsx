@@ -12,7 +12,7 @@ export default async function Home() {
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="bg-card flex flex-col justify-center gap-3 rounded-md border p-2">
-          <div className="space-y-1 p-2 pb-0">
+          <div className="space-y-1 p-1 pb-0">
             <div className="flex-1">
               <h1 className="text-3xl font-semibold">
                 Privacy Protocol Overview
