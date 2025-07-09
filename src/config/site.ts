@@ -14,5 +14,5 @@ export const siteConfig = {
   },
   twitter: "@pracc_xyz",
   favicon: "/logo.svg",
-  ogImage: "",
+  ogImage: "https://i.ibb.co/GD9scbD/og.png",
 }
