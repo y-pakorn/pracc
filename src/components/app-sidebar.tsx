@@ -24,8 +24,11 @@ import { Button } from "./ui/button"
 
 export function AppSidebar({
   className,
+  onNavClick,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  onNavClick?: (href: string) => void
+}) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -59,6 +62,7 @@ export function AppSidebar({
                   className="group"
                   target={item.isExternal ? "_blank" : undefined}
                   rel={item.isExternal ? "noopener noreferrer" : undefined}
+                  onClick={() => onNavClick?.(item.href)}
                 >
                   <Button
                     size="sm"

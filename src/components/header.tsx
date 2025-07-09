@@ -2,7 +2,7 @@
 
 import React, { memo, useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { Github, MoonIcon, Search, SunIcon } from "lucide-react"
+import { Github, Menu, MoonIcon, Search, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { nav } from "@/config/nav"
@@ -10,6 +10,7 @@ import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 import { MiniProtocol } from "@/types"
 
+import { MobileSidebar } from "./mobile-sidebar"
 import { Button } from "./ui/button"
 import {
   CommandDialog,
@@ -19,7 +20,15 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command"
+import { DialogTitle } from "./ui/dialog"
 import { Input } from "./ui/input"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet"
 
 export const Header = memo(
   ({
@@ -50,6 +59,11 @@ export const Header = memo(
           className={cn("sticky top-0 flex items-center gap-2", className)}
           {...props}
         >
+          <MobileSidebar>
+            <Button variant="outline" size="smIcon" className="md:hidden">
+              <Menu />
+            </Button>
+          </MobileSidebar>
           <div className="relative w-sm">
             <Search className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2" />
             <p className="text-muted-foreground absolute top-1/2 right-2 -translate-y-1/2 text-sm">

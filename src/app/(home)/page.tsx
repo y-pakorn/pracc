@@ -14,7 +14,7 @@ export default async function Home() {
         <div className="bg-card flex flex-col justify-center gap-3 rounded-md border p-2">
           <div className="space-y-1 p-1 pb-0">
             <div className="flex-1">
-              <h1 className="text-3xl font-semibold">
+              <h1 className="text-2xl font-semibold md:text-3xl">
                 Privacy Protocol Overview
               </h1>
             </div>

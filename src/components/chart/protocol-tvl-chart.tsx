@@ -74,12 +74,12 @@ export const ProtocolTvlChart = memo(
         )}
         {...props}
       >
-        <div className="flex items-center gap-2 p-1 pb-0">
+        <div className="flex flex-col gap-2 p-1 pb-0 md:flex-row md:items-center">
           <div>
             <h2 className="text-secondary-foreground text-sm font-medium">
               Total Value Shielded
             </h2>
-            <h1 className="text-2xl font-semibold">
+            <h1 className="text-xl font-semibold md:text-2xl">
               <span className="text-secondary-foreground">$</span>
               {formatter.number(current)}{" "}
               <span
@@ -98,13 +98,14 @@ export const ProtocolTvlChart = memo(
             </p>
           </div>
           <div className="flex-1" />
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {tfs.map((tf) => (
               <Button
                 key={tf}
                 variant={selectedTf === tf ? "default" : "outline"}
                 size="xs"
                 onClick={() => setSelectedTf(tf as "month" | "year" | "all")}
+                className="flex-1 md:flex-auto"
               >
                 {_.startCase(tf)}{" "}
                 <Check className={cn(selectedTf !== tf && "hidden")} />

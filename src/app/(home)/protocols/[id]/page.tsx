@@ -77,13 +77,8 @@ export default async function ProtocolPage({
   const tier = scoreTier.find((t) => protocol.overall_score > t.gt)
 
   return (
-    <div className="flex gap-4">
-      <div
-        className="bg-card sticky h-fit w-2xs shrink-0 space-y-2 rounded-md border py-2"
-        style={{
-          top: "calc(var(--header-height) + 1rem)",
-        }}
-      >
+    <div className="flex flex-col gap-2 md:flex-row md:gap-4">
+      <div className="bg-card h-fit w-full shrink-0 space-y-2 rounded-md border py-2 md:sticky md:top-[calc(var(--header-height)+1rem)] md:w-2xs">
         <div className="space-y-1 px-3 py-2">
           <img
             src={protocol.logo_url}

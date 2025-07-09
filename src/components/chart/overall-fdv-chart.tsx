@@ -84,7 +84,7 @@ export function OverallFdvChart({
               </div>
             </InfoTooltip>
           </h2>
-          <h1 className="text-2xl font-semibold">
+          <h1 className="text-xl font-semibold md:text-2xl">
             <span className="text-secondary-foreground">$</span>
             {formatter.number(current)}{" "}
             <span

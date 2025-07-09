@@ -108,7 +108,7 @@ export const ProtocolOverviewTableHeader = memo(
         <div className="flex items-center gap-2 px-3">
           <Table className="size-4" />
           <span className="font-semibold">
-            {filteredProtocols.length} Privacy Protocols
+            {filteredProtocols.length} Protocols
           </span>
 
           <div className="flex-1" />
@@ -122,7 +122,11 @@ export const ProtocolOverviewTableHeader = memo(
             }
           >
             <SelectTrigger asChild>
-              <Button variant="outline" size="xs" className="h-7! text-xs!">
+              <Button
+                variant="outline"
+                size="xs"
+                className="hidden h-7! text-xs! md:inline-flex"
+              >
                 Limit {paginationState.pageSize} <ChevronDown />
               </Button>
             </SelectTrigger>
@@ -144,6 +148,7 @@ export const ProtocolOverviewTableHeader = memo(
               }))
             }
             disabled={paginationState.pageIndex === 0}
+            className="hidden md:inline-flex"
           >
             <ChevronsLeft />
           </Button>
@@ -159,7 +164,7 @@ export const ProtocolOverviewTableHeader = memo(
             }
           >
             <ChevronLeft />
-            Back
+            <span className="hidden md:inline">Back</span>
           </Button>
           <Button
             aria-readonly
@@ -181,7 +186,7 @@ export const ProtocolOverviewTableHeader = memo(
               }))
             }
           >
-            Next
+            <span className="hidden md:inline">Next</span>
             <ChevronRight />
           </Button>
           <Button
@@ -194,12 +199,13 @@ export const ProtocolOverviewTableHeader = memo(
               }))
             }
             disabled={paginationState.pageIndex === maxPageIndex}
+            className="hidden md:inline-flex"
           >
             <ChevronsRight />
           </Button>
         </div>
         <Separator className="my-2" />
-        <div className="flex items-center gap-2 px-3">
+        <div className="flex flex-wrap items-center gap-2 px-3">
           <MultiSelectFilterCombobox
             options={allCategory}
             value={categories}
