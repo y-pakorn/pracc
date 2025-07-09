@@ -1,23 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { useCallback, useMemo } from "react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import {
-  ArrowUpRight,
-  Flag,
-  Github,
-  Globe,
-  LayoutDashboard,
-  Settings,
-  SunMoon,
-  Twitter,
-} from "lucide-react"
-import { useTheme } from "next-themes"
+import { usePathname } from "next/navigation"
+import { ArrowUpRight } from "lucide-react"
 
 import { nav } from "@/config/nav"
-import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 
 import { Button } from "./ui/button"
@@ -30,17 +18,14 @@ export function AppSidebar({
   onNavClick?: (href: string) => void
 }) {
   const pathname = usePathname()
-  const router = useRouter()
-
-  const { setTheme, resolvedTheme } = useTheme()
-  const toggleTheme = useCallback(() => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark")
-  }, [setTheme, resolvedTheme])
 
   return (
     <div {...props} className={cn("flex flex-col gap-6", className)}>
       <div>
-        <h1 className="text-xl font-bold">PRACC</h1>
+        <div className="flex items-center gap-0.5">
+          <img src="/logo.svg" alt="PRACC" className="size-5" />
+          <h1 className="text-xl font-extrabold tracking-[-0.06em]">PRACC</h1>
+        </div>
         <h2 className="text-secondary-foreground text-xs">
           <span className="font-bold">P</span>rivacy{" "}
           <span className="font-bold">R</span>obustness{" "}

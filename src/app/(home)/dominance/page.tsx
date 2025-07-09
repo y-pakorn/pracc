@@ -1,13 +1,27 @@
 import { Metadata } from "next"
 import _ from "lodash"
 
+import { siteConfig } from "@/config/site"
 import { getOverviewProtocols } from "@/services/data"
 import { DominanceChart } from "@/components/chart/dominance-chart"
-import { OverallTvl } from "@/types"
 
 export const metadata: Metadata = {
   title: "Dominance",
   description: "Dominance of protocols among all privacy preserving protocols",
+  openGraph: {
+    title: "Dominance",
+    description:
+      "Dominance of protocols among all privacy preserving protocols",
+    siteName: siteConfig.name,
+    images: [
+      {
+        url: siteConfig.ogImage,
+        width: 1200,
+        height: 630,
+        alt: "Dominance",
+      },
+    ],
+  },
 }
 
 export default async function DominancePage() {

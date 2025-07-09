@@ -13,6 +13,6 @@ export const siteConfig = {
     author: "PRACC",
   },
   twitter: "@pracc_xyz",
-  favicon: "/favicon.ico",
-  ogImage: `${env.NEXT_PUBLIC_APP_URL}/og.jpg`,
+  favicon: "/logo.svg",
+  ogImage: "",
 }

@@ -15,6 +15,7 @@ import { match, P } from "ts-pattern"
 
 import { criteria } from "@/config/critera"
 import { scoreTier } from "@/config/score-tier"
+import { siteConfig } from "@/config/site"
 import { formatter } from "@/lib/formatter"
 import { cn } from "@/lib/utils"
 import { getProtocol, getRawProtocols } from "@/services/data"
@@ -49,10 +50,39 @@ export async function generateMetadata({
     return {
       title: "Protocol not found",
       description: "The protocol you are looking for does not exist.",
+      openGraph: {
+        title: "Protocol not found",
+        description: "The protocol you are looking for does not exist.",
+        siteName: siteConfig.name,
+        images: [
+          {
+            url: siteConfig.ogImage,
+            width: 1200,
+            height: 630,
+            alt: "Protocol not found",
+          },
+        ],
+      },
     }
+  const description = p.protocol.description
+    ? `${p.protocol.description} - ${p.protocol.name} privacy analysis and robustness assessment`
+    : `${p.protocol.name} privacy analysis and robustness assessment`
   return {
     title: p.protocol.name,
-    description: p.protocol.description,
+    description,
+    openGraph: {
+      title: p.protocol.name,
+      description,
+      siteName: siteConfig.name,
+      images: [
+        {
+          url: siteConfig.ogImage,
+          width: 1200,
+          height: 630,
+          alt: p.protocol.name,
+        },
+      ],
+    },
   }
 }
 

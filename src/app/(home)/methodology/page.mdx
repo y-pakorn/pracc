@@ -1,7 +1,23 @@
+import { siteConfig } from "@/config/site"
+
 export const metadata = {
   title: "Methodology",
   description:
     "The methodology for the Privacy Robustness Acceleration (PR/ACC) framework. This framework is designed to assess an application's resistance to information leakage by an external observer (the attacker). It evaluates applications based on two primary categories: Privacy, which measures the effectiveness of information obfuscation, and Robustness, which measures the protocol's resilience and architectural soundness.",
+  openGraph: {
+    title: "Methodology",
+    description:
+      "The methodology for the Privacy Robustness Acceleration (PR/ACC) framework. This framework is designed to assess an application's resistance to information leakage by an external observer (the attacker). It evaluates applications based on two primary categories: Privacy, which measures the effectiveness of information obfuscation, and Robustness, which measures the protocol's resilience and architectural soundness.",
+    siteName: siteConfig.name,
+    images: [
+      {
+        url: siteConfig.ogImage,
+        width: 1200,
+        height: 630,
+        alt: "Methodology",
+      },
+    ],
+  },
 }
 
 # Specification for the Privacy Robustness Acceleration (PR/ACC) Framework

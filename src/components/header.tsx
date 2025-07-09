@@ -20,15 +20,7 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command"
-import { DialogTitle } from "./ui/dialog"
 import { Input } from "./ui/input"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./ui/sheet"
 
 export const Header = memo(
   ({
@@ -59,6 +51,7 @@ export const Header = memo(
           className={cn("sticky top-0 flex items-center gap-2", className)}
           {...props}
         >
+          <img src="/logo.svg" alt="PRACC" className="size-7 md:hidden" />
           <MobileSidebar>
             <Button variant="outline" size="smIcon" className="md:hidden">
               <Menu />
