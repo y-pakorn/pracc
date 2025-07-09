@@ -8,6 +8,7 @@ import { ArrowUpRight } from "lucide-react"
 import { nav } from "@/config/nav"
 import { cn } from "@/lib/utils"
 
+import { Logo } from "./logo"
 import { Button } from "./ui/button"
 
 export function AppSidebar({
@@ -23,7 +24,7 @@ export function AppSidebar({
     <div {...props} className={cn("flex flex-col gap-6", className)}>
       <div>
         <div className="flex items-center gap-0.5">
-          <img src="/logo.svg" alt="PRACC" className="size-5" />
+          <Logo className="size-5" />
           <h1 className="text-xl font-extrabold tracking-[-0.06em]">PRACC</h1>
         </div>
         <h2 className="text-secondary-foreground text-xs">

@@ -10,6 +10,7 @@ import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 import { MiniProtocol } from "@/types"
 
+import { Logo } from "./logo"
 import { MobileSidebar } from "./mobile-sidebar"
 import { Button } from "./ui/button"
 import {
@@ -51,7 +52,7 @@ export const Header = memo(
           className={cn("sticky top-0 flex items-center gap-2", className)}
           {...props}
         >
-          <img src="/logo.svg" alt="PRACC" className="size-7 md:hidden" />
+          <Logo className="size-7 md:hidden" />
           <MobileSidebar>
             <Button variant="outline" size="smIcon" className="md:hidden">
               <Menu />

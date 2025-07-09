@@ -37,13 +37,8 @@ export const nav = Object.freeze([
     items: [
       {
         icon: Book,
-        label: "Methodology",
-        href: "/methodology",
-      },
-      {
-        icon: MessageCircle,
-        label: "Feedback",
-        href: "https://pracc.userjot.com/",
+        label: "Spec & Feedback",
+        href: "https://www.notion.so/Specification-for-the-Privacy-Robustness-Acceleration-PR-ACC-Framework-22425b25d0bc8099b8abe286640cfdcd",
         isExternal: true,
       },
       {
